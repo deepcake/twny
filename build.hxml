@@ -3,6 +3,8 @@
 
 -L hxease
 
+-D twny_autocompletion_hack
+
 -D analyzer-optimize
 -main Main
 --interp
