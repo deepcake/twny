@@ -105,7 +105,16 @@ class Tween {
         return this;
     }
 
+#if twny_autocompletion_hack
+    // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
+    // todo: remove after fix
+    macro public function transite(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
+        var singleArg = easingAndProperties.length == 1;
+        var easing = singleArg ? macro hxease.Linear.easeNone : easingAndProperties[0];
+        var properties = singleArg ? easingAndProperties[0] : easingAndProperties[1];
+#else
     macro public function transite(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
+#end
         var transitions = [];
 
         function process(expr:Expr) {
@@ -123,11 +132,19 @@ class Tween {
                     transitions.push(tr);
                 }
                 case e: {
-                    // case for autocompletion only
-                    trace(e);
-                    Context.warning('Expr `${expr.toString()}` is not allowed!', Context.currentPos());
-                    var tr = macro new twny.Transition($easing, 0.0, () -> throw 'ERROR!!!', v -> $expr);
+                    var msg = 'Expr `${expr.toString()}` is not allowed! Assignment (like `a.b = c`) is required instead!';
+#if twny_autocompletion_hack
+                    // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
+                    // todo: remove after fix
+                    msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Beware!';
+                    Context.warning(msg, Context.currentPos());
+
+                    var error = 'This is errored transition of expr `${expr.toString()}`!';
+                    var tr = macro new twny.Transition($easing, 0.0, () -> throw $v{error}, v -> $expr);
                     transitions.push(tr);
+#else
+                    Context.error(msg, Context.currentPos());
+#end
                 }
             }
         }
