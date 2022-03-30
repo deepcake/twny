@@ -161,6 +161,23 @@ class Tween {
 #end
         var transitions = [];
 
+        inline function fail(expr:Expr) {
+            var msg = 'Expr `${expr.toString()}` is not allowed! Assignment (like `a.b = c`) is required instead!';
+#if twny_autocompletion_hack
+            // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
+            // todo: remove after fix
+            msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Fix it!';
+            Context.warning(msg, Context.currentPos());
+
+            var error = 'This is errored transition of expr `${expr.toString()}`!';
+            var tr = macro new twny.Transition($easing, 0.0, () -> throw $v{error}, v -> $expr);
+            return tr;
+#else
+            Context.error(msg, Context.currentPos());
+            return macro null;
+#end
+        }
+
         function process(expr:Expr) {
             switch expr.expr {
                 case EFunction(_, { expr: e }) | EReturn(e) | EMeta(_, e): {
@@ -169,26 +186,28 @@ class Tween {
                 case EBlock(exprs): {
                     exprs.iter(process);
                 }
-                case EBinop(OpAssign, e1, e2): {
-                    var gtExpr = macro function() return $e1;
-                    var stExpr = macro function(value:Float) $e1 = value;
-                    var tr = macro new twny.Transition($easing, $e2, $gtExpr, $stExpr);
+                case EBinop(op, e1, e2): {
+                    var get = macro function() return $e1;
+                    var set = macro function(v:Float) $e1 = v;
+                    var tr = switch op {
+                        case OpAssign: {
+                            macro new twny.Transition($easing, $e2, $get, $set);
+                        }
+                        case OpAssignOp(aop): {
+                            var from = {
+                                expr: EBinop(aop, e1, e2),
+                                pos: Context.currentPos()
+                            }
+                            macro new twny.Transition($easing, $from, $get, $set);
+                        }
+                        default: {
+                            fail(expr);
+                        }
+                    }
                     transitions.push(tr);
                 }
-                case e: {
-                    var msg = 'Expr `${expr.toString()}` is not allowed! Assignment (like `a.b = c`) is required instead!';
-#if twny_autocompletion_hack
-                    // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
-                    // todo: remove after fix
-                    msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Beware!';
-                    Context.warning(msg, Context.currentPos());
-
-                    var error = 'This is errored transition of expr `${expr.toString()}`!';
-                    var tr = macro new twny.Transition($easing, 0.0, () -> throw $v{error}, v -> $expr);
-                    transitions.push(tr);
-#else
-                    Context.error(msg, Context.currentPos());
-#end
+                case _: {
+                    fail(expr);
                 }
             }
         }
