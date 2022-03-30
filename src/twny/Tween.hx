@@ -8,6 +8,7 @@ import haxe.macro.Context;
 using haxe.macro.ExprTools;
 using Lambda;
 
+@:access(twny)
 class Tween {
 
 
@@ -16,36 +17,26 @@ class Tween {
     var head:Tween;
     var next:Tween;
 
-
     var duration:Float;
 
-    var elapsed(default, null) = 0.0;
-    var running(default, null) = false;
-
-    var repeating = false;
+    var elapsed = 0.0;
+    var running = false;
 
 
-    var initialized = false;
+    var paused = false;
+
+    var repeat = false;
+
+    var active = false;
 
 
-    public function new(duration:Float, immediate = true, repeating = false) {
+    public function new(duration:Float, repeat = false) {
         this.duration = duration;
-        this.repeating = repeating;
-        if (immediate) {
-            start();
-        }
+        this.repeat = repeat;
     }
 
-
     public function update(dt:Float) {
-        if (running) {
-
-            if (!initialized) {
-                for (t in transitions) {
-                    t.reset();
-                }
-                initialized = true;
-            }
+        if (running && !paused) {
 
             elapsed += dt;
 
@@ -56,54 +47,107 @@ class Tween {
             }
 
             if (elapsed >= duration) {
+                var offset = elapsed - duration;
+
+                elapsed = duration;
                 running = false;
+
                 if (next != null) {
-                    next.startFrom(elapsed - duration);
+                    next.setup();
+                    next.update(offset);
                 }
                 else {
-                    if (repeating) {
+                    if (repeat) {
                         if (head != null) {
-                            head.startFrom(elapsed - duration);
+                            head.setup();
+                            head.update(offset);
                         }
                         else {
-                            this.startFrom(elapsed - duration);
+                            this.setup();
+                            this.update(offset);
                         }
+                    }
+                    else {
+                        // TODO teardown
                     }
                 }
             }
         }
     }
 
-
-    public function start() {
-        running = true;
+    function setup() {
         elapsed = 0.0;
-        initialized = false;
+        running = true;
+        for (t in transitions) {
+            t.reset();
+        }
+        if (!active) {
+            Twny.activate(this);
+        }
     }
 
-    public function stop() {
+    public function start() {
+        setup();
+        return this;
+    }
+
+    public function stop(complete = false) {
+        if (complete && elapsed < duration) {
+            for (t in transitions) {
+                t.apply(1.0);
+            }
+            if (next != null) {
+                next.setup();
+            }
+        }
+
+        elapsed = duration;
         running = false;
-        elapsed = 0.0;
-        initialized = false;
+
         if (next != null) {
-            next.stop();
+            next.stop(complete);
+        }
+        return this;
+    }
+
+
+    public function dispose() {
+        transitions.resize(0);
+        head = null;
+        next = null;
+    }
+
+
+    public function pause() {
+        paused = true;
+        if (next != null) {
+            next.pause();
+        }
+    }
+
+    public function resume() {
+        paused = false;
+        if (next != null) {
+            next.resume();
         }
     }
 
 
-    function startFrom(t:Float) {
-        start();
-        update(t);
+    function addNextTween(tween:Tween) {
+        this.next = tween;
+        tween.head = this;
+        tween.repeat = this.repeat;
+        tween.stop();
     }
 
 
     public function then(tween:Tween):Tween {
-        tween.head = this;
-        this.next = tween;
-        tween.repeating = this.repeating;
-        tween.stop();
+        this.addNextTween(tween);
         return this;
     }
+
+
+
 
 #if twny_autocompletion_hack
     // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
@@ -161,6 +205,5 @@ class Tween {
         transitions.push(t);
         return this;
     }
-
 
 }
