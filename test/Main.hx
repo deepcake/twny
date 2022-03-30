@@ -21,17 +21,17 @@ class Main {
         };
 
         var t = new Tween(10.0, true)
-            .transite(Linear.easeNone, () -> {
+            .to(Linear.easeNone, () -> {
                 obj.x = 100;
                 obj.y = 150;
                 obj.z = 0;
             })
             .then(
                 new Tween(10.0)
-                    .transite(Linear.easeNone, obj.x = 50)
-                    .transite(Linear.easeNone, () -> obj.y = 300)
-                    .transite(Linear.easeNone, { obj.z = 10000; })
-                    .transite(Linear.easeNone, { 
+                    .to(Linear.easeNone, obj.x = 50)
+                    .to(Linear.easeNone, () -> obj.y = 300)
+                    .to(Linear.easeNone, { obj.z = 10000; })
+                    .to(Linear.easeNone, { 
                         obj.n.a = 1.0;
                         obj.n.n.b = obj.z;
                     })

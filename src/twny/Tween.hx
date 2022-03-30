@@ -1,12 +1,8 @@
 package twny;
 
-import haxe.macro.Printer;
+#if macro
 import haxe.macro.Expr;
-import haxe.macro.Expr.ExprDef;
-import haxe.macro.Context;
-
-using haxe.macro.ExprTools;
-using Lambda;
+#end
 
 @:access(twny)
 class Tween {
@@ -146,77 +142,31 @@ class Tween {
         return this;
     }
 
-
-
-
+    /**
+     * Properties can be passed in any format below:  
+     * `() -> { obj.x = 5; obj.y = 10; }`  
+     * `() -> obj.x = 5`  
+     * `{ obj.x = 5; obj.y = 10; }`  
+     * or just `obj.x = 5`  
+     * For example, `obj.x = 5` will become a transition with `from = obj.x` and `to = 5`.  
+     * Transition will be generated for every assigment in the block.  
+     * It is also possible to make a relative transition: `obj.y += 5`  
+     * So on every start a `to` var will be initialized as `obj.y + 5` instead of simple `5`. Should be useful for reuse.
+     * @param easing hxease.IEasing
+     * @param properties function or just block with expressions  
+     * 
+     */
 #if twny_autocompletion_hack
     // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
     // todo: remove after fix
-    macro public function transite(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
+    public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
         var singleArg = easingAndProperties.length == 1;
         var easing = singleArg ? macro hxease.Linear.easeNone : easingAndProperties[0];
         var properties = singleArg ? easingAndProperties[0] : easingAndProperties[1];
 #else
-    macro public function transite(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
+    public macro function to(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
 #end
-        var transitions = [];
-
-        inline function fail(expr:Expr) {
-            var msg = 'Expr `${expr.toString()}` is not allowed! Assignment (like `a.b = c`) is required instead!';
-#if twny_autocompletion_hack
-            // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
-            // todo: remove after fix
-            msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Fix it!';
-            Context.warning(msg, Context.currentPos());
-
-            var error = 'This is errored transition of expr `${expr.toString()}`!';
-            var tr = macro new twny.Transition($easing, 0.0, () -> throw $v{error}, v -> $expr);
-            return tr;
-#else
-            Context.error(msg, Context.currentPos());
-            return macro null;
-#end
-        }
-
-        function process(expr:Expr) {
-            switch expr.expr {
-                case EFunction(_, { expr: e }) | EReturn(e) | EMeta(_, e): {
-                    process(e);
-                }
-                case EBlock(exprs): {
-                    exprs.iter(process);
-                }
-                case EBinop(op, e1, e2): {
-                    var get = macro function() return $e1;
-                    var set = macro function(v:Float) $e1 = v;
-                    var tr = switch op {
-                        case OpAssign: {
-                            macro new twny.Transition($easing, $e2, $get, $set);
-                        }
-                        case OpAssignOp(aop): {
-                            var from = {
-                                expr: EBinop(aop, e1, e2),
-                                pos: Context.currentPos()
-                            }
-                            macro new twny.Transition($easing, $from, $get, $set);
-                        }
-                        default: {
-                            fail(expr);
-                        }
-                    }
-                    transitions.push(tr);
-                }
-                case _: {
-                    fail(expr);
-                }
-            }
-        }
-
-        process(properties);
-
-        var ret = transitions.fold((e:Expr, r:Expr) -> macro $r.addTransition($e), self);
-
-        return ret;
+        return twny.macro.Tween.transitions(self, easing, properties);
     }
 
 

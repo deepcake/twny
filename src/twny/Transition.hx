@@ -9,25 +9,23 @@ class Transition {
     var from:Float;
     var to:Float;
 
-    var st:(value:Float)->Void;
-    var gt:Void->Float;
+    var set:(value:Float)->Void;
+    var get:Void->Float;
 
 
-    public function new(easing:IEasing, to:Float, gt:Void->Float, st:(value:Float)->Void) {
+    public function new(easing:IEasing, to:Float, get:Void->Float, set:(value:Float)->Void) {
         this.easing = easing;
         this.to = to;
-        this.gt = gt;
-        this.st = st;
+        this.get = get;
+        this.set = set;
     }
 
     public function reset() {
-        from = gt();
+        from = get();
     }
 
     public function apply(k:Float) {
-        var value = k < 1.0 ? from + (to - from) * easing.calculate(k) : to;
-        st(value);
+        set(k < 1.0 ? from + (to - from) * easing.calculate(k) : to);
     }
-
 
 }
