@@ -102,6 +102,7 @@ jobs:
     - name: Test [cpp ]
       run: haxelib run travix cpp
     - name: Test [cs ]
+      if: runner.os == 'Windows'
       run: haxelib run travix cs
     # - name: Test [php ]
     #   run: haxelib run travix php
