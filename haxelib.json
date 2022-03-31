@@ -1,0 +1,17 @@
+{
+  "name": "twny",
+  "license": "MIT",
+  "tags": [ 
+    "tweening" 
+  ],
+  "classPath": "src",
+  "contributors": [
+    "deepcake"
+  ],
+  "releasenote": "initial release",
+  "version": "0.0.1",
+  "url": "https://github.com/deepcake/twny/",
+  "dependencies": {
+    "hxease": ""
+  }
+}

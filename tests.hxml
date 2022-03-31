@@ -1,0 +1,10 @@
+-cp src
+-cp test
+
+-L buddy
+-L hxease
+
+-main Main
+-dce full
+
+-D analyzer-optimize

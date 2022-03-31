@@ -1,81 +1,74 @@
-import twny.Twny;
-import hxease.Cubic;
-import hxease.Quad;
-import hxease.Linear;
 import twny.Tween;
+import hxease.Linear;
 
-class Main {
-    static function main() {
-        trace("Hello, world!");
+using buddy.Should;
 
-        var obj = { 
-            x: .0, 
-            y: .0, 
-            z: 100.0,
-            n: { 
-                a: 0.0, 
-                n: { 
-                    b: 0.0 
-                } 
-            } 
-        };
+class Main extends buddy.SingleSuite {
+    public function new() {
+        describe("Test", {
 
-        var t = new Tween(10.0, true)
-            .to(Linear.easeNone, () -> {
-                obj.x = 100;
-                obj.y = 150;
-                obj.z = 0;
-            })
-            .then(
-                new Tween(10.0)
-                    .to(Linear.easeNone, obj.x = 50)
-                    .to(Linear.easeNone, () -> obj.y = 300)
-                    .to(Linear.easeNone, { obj.z = 10000; })
-                    .to(Linear.easeNone, { 
-                        obj.n.a = 1.0;
-                        obj.n.n.b = obj.z;
+            var o;
+            var t;
+
+            beforeEach({
+                o = { 
+                    x: .0, 
+                    y: .0, 
+                    z: 100.,
+                    n: { 
+                        a: .0, 
+                        n: { 
+                            b: .0 
+                        } 
+                    } 
+                };
+
+                t = new Tween(10.0, true)
+                    .to(Linear.easeNone, {
+                        o.x = 100;
+                        o.y = 200;
+                        o.z = 0;
                     })
-                    
-            )
-            .start();
+                    .then(
+                        new Tween(10.0)
+                            .to(Linear.easeNone, o.x = -100)
+                            .to(Linear.easeNone, () -> o.y = 300)
+                            .to(Linear.easeNone, () -> { o.z = 10000; })
+                            .to(Linear.easeNone, { 
+                                o.n.a = 1.0;
+                                o.n.n.b = o.z;
+                            })
+                    )
+                    .start();
+            });
 
+            describe("when update x0.5", {
+                beforeEach(t.update(5));
+                it("should update x correctly", o.x.should.be(50));
+                it("should update y correctly", o.y.should.be(100));
+                it("should update z correctly", o.z.should.be(50));
+                it("should update n.a correctly", o.n.a.should.be(0));
+                it("should update n.n.b correctly", o.n.n.b.should.be(0));
+            });
 
-        trace(obj);
+            describe("when update x1.0", {
+                beforeEach(t.update(10));
+                it("should update x correctly", o.x.should.be(100));
+                it("should update y correctly", o.y.should.be(200));
+                it("should update z correctly", o.z.should.be(0));
+                it("should update n.a correctly", o.n.a.should.be(0));
+                it("should update n.n.b correctly", o.n.n.b.should.be(0));
+            });
 
+            describe("when update x1.0 + x1.0", {
+                beforeEach(t.update(20));
+                it("should update x correctly", o.x.should.be(-100));
+                it("should update y correctly", o.y.should.be(300));
+                it("should update z correctly", o.z.should.be(10000));
+                it("should update n.a correctly", o.n.a.should.be(1.0));
+                it("should update n.n.b correctly", o.n.n.b.should.be(100));
+            });
 
-        Twny.update(1.0);
-
-
-        trace(obj);
-
-
-        Twny.update(14.0);
-
-
-        trace(obj);
-
-
-        Twny.update(20.0);
-
-
-        trace(obj);
-
-
-        t.pause();
-        Twny.update(1.0);
-        trace('pause  ' + obj);
-
-        t.resume();
-        Twny.update(1.0);
-        trace('resume ' + obj);
-
-        t.stop(true);
-        Twny.update(1.0);
-        trace('stop   ' + obj);
-
-        t.start();
-        Twny.update(1.0);
-        trace('start  ' + obj);
-
+        });
     }
 }

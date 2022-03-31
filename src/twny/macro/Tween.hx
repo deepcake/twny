@@ -38,7 +38,7 @@ class Tween {
                     exprs.iter(process);
                 }
                 case EBinop(op, e1, e2): {
-                    var get = macro function() return $e1;
+                    var get = macro function():Float return $e1;
                     var set = macro function(v:Float) $e1 = v;
                     var tr = switch op {
                         case OpAssign: {
