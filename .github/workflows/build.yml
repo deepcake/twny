@@ -29,10 +29,10 @@ jobs:
       run: env | sort
 
     - name: Git Checkout
-      uses: actions/checkout@v2 #https://github.com/actions/checkout
+      uses: actions/checkout@v3 #https://github.com/actions/checkout
 
     - name: "Cache Haxelib Repository"
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: $RUNNER_TOOL_CACHE/haxe/${{ matrix.haxe }}/x64/lib
         key: ${{ runner.os }}-haxelib-${{ hashFiles('**/haxelib.json') }}
@@ -55,15 +55,18 @@ jobs:
         rm /usr/local/share/man/man5/*
 
     - name: Set up Python 3
-      uses: actions/setup-python@v2 # https://github.com/actions/setup-python
+      uses: actions/setup-python@v3 # https://github.com/actions/setup-python
       with:
         python-version: 3.8
 
-    - name: Configure Python 3
+    - name: Configure Python 3 on Windows
       if: runner.os == 'Windows'
       shell: cmd
       # workaround for https://github.com/actions/setup-python/issues/123
-      run: mklink "%pythonLocation%\python3.exe" "%pythonLocation%\python.exe"
+      run:
+        if not exist "%pythonLocation%\python.exe" (
+          mklink "%pythonLocation%\python3.exe" "%pythonLocation%\python.exe"
+        )
 
     - name: Install Haxe ${{ matrix.haxe }}
       uses: krdlab/setup-haxe@v1 # https://github.com/krdlab/setup-haxe
@@ -86,8 +89,8 @@ jobs:
       run: haxelib run travix interp
     - name: Test [neko ]
       run: haxelib run travix neko
-    # - name: Test [python ]
-    #   run: haxelib run travix python
+    - name: Test [python ]
+      run: haxelib run travix python
     - name: Test [node ]
       run: haxelib run travix node
     # - name: Test [js ]
@@ -98,8 +101,8 @@ jobs:
       run: haxelib run travix java
     - name: Test [cpp ]
       run: haxelib run travix cpp
-    # - name: Test [cs ]
-    #   run: haxelib run travix cs
+    - name: Test [cs ]
+      run: haxelib run travix cs
     # - name: Test [php ]
     #   run: haxelib run travix php
     # - name: Test [php7 ]
