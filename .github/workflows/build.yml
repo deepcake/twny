@@ -86,8 +86,8 @@ jobs:
       run: haxelib run travix interp
     - name: Test [neko ]
       run: haxelib run travix neko
-    - name: Test [python ]
-      run: haxelib run travix python
+    # - name: Test [python ]
+    #   run: haxelib run travix python
     - name: Test [node ]
       run: haxelib run travix node
     # - name: Test [js ]
@@ -104,5 +104,5 @@ jobs:
     #   run: haxelib run travix php
     # - name: Test [php7 ]
     #   run: haxelib run travix php7
-    - name: Test [lua ]
-      run: haxelib run travix lua
+    # - name: Test [lua ]
+    #   run: haxelib run travix lua
