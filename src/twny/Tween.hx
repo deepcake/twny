@@ -22,13 +22,31 @@ class Tween {
     var paused = false;
 
     var repeat = false;
+    var disposeOnComplete = false;
 
-    var active = false;
+    var collected = false;
+    var disposed = false;
+
+
+    var completed(get, null):Bool;
 
 
     public function new(duration:Float, repeat = false) {
         this.duration = duration;
         this.repeat = repeat;
+    }
+
+    public function once() {
+        disposeOnComplete = true;
+        return this;
+    }
+
+    public function auto() {
+        if (!collected) {
+            Twny.addTween(this);
+            collected = true;
+        }
+        return this;
     }
 
     public function update(dt:Float) {
@@ -64,7 +82,14 @@ class Tween {
                         }
                     }
                     else {
-                        // TODO teardown
+                        if (disposeOnComplete) {
+                            if (head != null) {
+                                head.dispose();
+                            }
+                            else {
+                                this.dispose();
+                            }
+                        }
                     }
                 }
             }
@@ -77,10 +102,8 @@ class Tween {
         for (t in transitions) {
             t.reset();
         }
-        if (!active) {
-            Twny.activate(this);
-        }
     }
+
 
     public function start() {
         setup();
@@ -103,16 +126,11 @@ class Tween {
         if (next != null) {
             next.stop(complete);
         }
+        if (disposeOnComplete) {
+            dispose();
+        }
         return this;
     }
-
-
-    public function dispose() {
-        transitions.resize(0);
-        head = null;
-        next = null;
-    }
-
 
     public function pause() {
         paused = true;
@@ -128,14 +146,17 @@ class Tween {
         }
     }
 
-
-    function addNextTween(tween:Tween) {
-        this.next = tween;
-        tween.head = this;
-        tween.repeat = this.repeat;
-        tween.stop();
+    public function dispose() {
+        if (next != null) {
+            next.dispose();
+        }
+        transitions.resize(0);
+        head = null;
+        next = null;
+        elapsed = 0.0;
+        running = false;
+        disposed = true;
     }
-
 
     public function then(tween:Tween):Tween {
         this.addNextTween(tween);
@@ -170,9 +191,23 @@ class Tween {
     }
 
 
+    function addNextTween(tween:Tween) {
+        this.next = tween;
+        tween.head = head != null ? head : this;
+        tween.repeat = repeat;
+        tween.disposeOnComplete = disposeOnComplete;
+        tween.stop();
+    }
+
+
     @:noCompletion public function addTransition(t:Transition):Tween {
         transitions.push(t);
         return this;
+    }
+
+
+    function get_completed() {
+        return elapsed >= duration && (next != null ? next.completed : true);
     }
 
 }

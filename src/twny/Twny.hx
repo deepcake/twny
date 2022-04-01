@@ -11,23 +11,29 @@ class Twny {
         var l = tweens.length;
         var i = 0;
         while (i < l) {
-            var t = tweens[i];
-            t.update(dt);
-            // if (t.completed) {
-            //     t.active = false;
-            //     tweens.splice(i, 1);
-            //     l--;
-            // }
-            // else {
+            var tween = tweens[i];
+            tween.update(dt);
+            if (tween.disposed) {
+                tweens.splice(i, 1);
+                tween.collected = false;
+                l--;
+            }
+            else {
                 i++;
-            // }
+            }
         }
     }
 
+    public function reset() {
+        for (tween in tweens) {
+            tween.dispose();
+        }
+        tweens.resize(0);
+    }
 
-    static inline function activate(t:Tween) {
-        tweens.push(t);
-        t.active = true;
+
+    static inline function addTween(tween:Tween) {
+        tweens.push(tween);
     }
 
 }
