@@ -24,7 +24,7 @@ class Tween {
     var repeat = false;
     var disposeOnComplete = false;
 
-    var collected = false;
+    var stocked = false;
     var disposed = false;
 
 
@@ -38,14 +38,6 @@ class Tween {
 
     public function once() {
         disposeOnComplete = true;
-        return this;
-    }
-
-    public function auto() {
-        if (!collected) {
-            Twny.addTween(this);
-            collected = true;
-        }
         return this;
     }
 
@@ -96,6 +88,13 @@ class Tween {
         }
     }
 
+
+    public function start() {
+        stock();
+        setup();
+        return this;
+    }
+
     function setup() {
         elapsed = 0.0;
         running = true;
@@ -104,11 +103,36 @@ class Tween {
         }
     }
 
+    function stock() {
+        if (!stocked) {
+            Twny.addTween(this);
+            stocked = true;
+        }
+        if (next != null) {
+            next.stock();
+        }
+    }
 
-    public function start() {
-        setup();
+
+    public function then(tween:Tween) {
+        tween.setHead(head != null ? head : this);
+        if (stocked) {
+            stock();
+        }
+        this.next = tween;
         return this;
     }
+
+    function setHead(tween:Tween) {
+        this.head = tween;
+        running = false;
+        repeat = head.repeat;
+        disposeOnComplete = head.disposeOnComplete;
+        if (next != null) {
+            next.setHead(head);
+        }
+    }
+
 
     public function stop(complete = false) {
         if (complete && elapsed < duration) {
@@ -132,6 +156,7 @@ class Tween {
         return this;
     }
 
+
     public function pause() {
         paused = true;
         if (next != null) {
@@ -146,10 +171,8 @@ class Tween {
         }
     }
 
-    public function dispose() {
-        if (next != null) {
-            next.dispose();
-        }
+
+    function dispose() {
         transitions.resize(0);
         head = null;
         next = null;
@@ -158,10 +181,6 @@ class Tween {
         disposed = true;
     }
 
-    public function then(tween:Tween):Tween {
-        this.addNextTween(tween);
-        return this;
-    }
 
     /**
      * Properties can be passed in any format below:  
@@ -188,15 +207,6 @@ class Tween {
     public macro function to(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
 #end
         return twny.macro.Tween.transitions(self, easing, properties);
-    }
-
-
-    function addNextTween(tween:Tween) {
-        this.next = tween;
-        tween.head = head != null ? head : this;
-        tween.repeat = repeat;
-        tween.disposeOnComplete = disposeOnComplete;
-        tween.stop();
     }
 
 

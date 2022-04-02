@@ -15,7 +15,7 @@ class Twny {
             tween.update(dt);
             if (tween.disposed) {
                 tweens.splice(i, 1);
-                tween.collected = false;
+                tween.stocked = false;
                 l--;
             }
             else {
