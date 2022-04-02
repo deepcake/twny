@@ -10,7 +10,7 @@ class Tween {
 
     var transitions = new Array<Transition>();
 
-    var head:Tween;
+    var head(default, set):Tween;
     var next:Tween;
 
     var duration:Float;
@@ -18,15 +18,12 @@ class Tween {
     var elapsed = 0.0;
     var running = false;
 
-
-    var paused = false;
-
-    var repeat = false;
-    var disposeOnComplete = false;
+    var paused(get, default) = false;
+    var repeat(get, default) = false;
+    var disposeOnComplete(get, default) = false;
 
     var stocked = false;
     var disposed = false;
-
 
     var completed(get, null):Bool;
 
@@ -63,24 +60,22 @@ class Tween {
                     next.update(offset);
                 }
                 else {
-                    if (repeat) {
-                        if (head != null) {
+                    if (head != null) {
+                        if (repeat) {
                             head.setup();
                             head.update(offset);
                         }
-                        else {
-                            this.setup();
-                            this.update(offset);
+                        else if (disposeOnComplete) {
+                            head.dispose();
                         }
                     }
                     else {
-                        if (disposeOnComplete) {
-                            if (head != null) {
-                                head.dispose();
-                            }
-                            else {
-                                this.dispose();
-                            }
+                        if (repeat) {
+                            this.setup();
+                            this.update(offset);
+                        }
+                        else if (disposeOnComplete) {
+                            this.dispose();
                         }
                     }
                 }
@@ -115,22 +110,12 @@ class Tween {
 
 
     public function then(tween:Tween) {
-        tween.setHead(head != null ? head : this);
+        tween.set_head(head != null ? head : this);
         if (stocked) {
             stock();
         }
         this.next = tween;
         return this;
-    }
-
-    function setHead(tween:Tween) {
-        this.head = tween;
-        running = false;
-        repeat = head.repeat;
-        disposeOnComplete = head.disposeOnComplete;
-        if (next != null) {
-            next.setHead(head);
-        }
     }
 
 
@@ -159,20 +144,17 @@ class Tween {
 
     public function pause() {
         paused = true;
-        if (next != null) {
-            next.pause();
-        }
     }
 
     public function resume() {
         paused = false;
-        if (next != null) {
-            next.resume();
-        }
     }
 
 
     function dispose() {
+        if (next != null) {
+            next.dispose();
+        }
         transitions.resize(0);
         head = null;
         next = null;
@@ -215,6 +197,27 @@ class Tween {
         return this;
     }
 
+
+    function set_head(tween:Tween) {
+        head = tween;
+        running = false;
+        if (next != null) {
+            next.set_head(head);
+        }
+        return head;
+    }
+
+    function get_paused() {
+        return head != null ? head.paused : paused;
+    }
+
+    function get_repeat() {
+        return head != null ? head.repeat : repeat;
+    }
+
+    function get_disposeOnComplete() {
+        return head != null ? head.disposeOnComplete : disposeOnComplete;
+    }
 
     function get_completed() {
         return elapsed >= duration && (next != null ? next.completed : true);
