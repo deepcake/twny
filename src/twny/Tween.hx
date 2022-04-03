@@ -15,16 +15,16 @@ class Tween {
     var head(default, set):Tween;
     var next:Tween;
 
-    var duration:Float;
-
-    var elapsed = 0.0;
-    var running = false;
-
-    var paused(get, default) = false;
-    var repeatable(get, default) = false;
-    var disposeOnComplete(get, default) = false;
-
     var stocked = false;
+
+    public var duration(default, null):Float;
+
+    public var elapsed(default, null) = 0.0;
+    public var running(default, null) = false;
+
+    public var paused(get, null) = false;
+    public var repeatable(get, null) = false;
+    public var disposable(get, null) = false;
 
     var completed(get, null):Bool;
 
@@ -34,7 +34,7 @@ class Tween {
     }
 
     public function once() {
-        disposeOnComplete = true;
+        disposable = true;
         return this;
     }
 
@@ -70,7 +70,7 @@ class Tween {
                             head.setup();
                             head.update(offset);
                         }
-                        else if (disposeOnComplete) {
+                        else if (disposable) {
                             head.dispose();
                         }
                     }
@@ -79,7 +79,7 @@ class Tween {
                             this.setup();
                             this.update(offset);
                         }
-                        else if (disposeOnComplete) {
+                        else if (disposable) {
                             this.dispose();
                         }
                     }
@@ -134,7 +134,7 @@ class Tween {
         if (next != null) {
             next.stop(complete);
         }
-        if (disposeOnComplete) {
+        if (disposable) {
             dispose();
         }
         return this;
@@ -169,14 +169,13 @@ class Tween {
      * `() -> { obj.x = 5; obj.y = 10; }`  
      * `() -> obj.x = 5`  
      * `{ obj.x = 5; obj.y = 10; }`  
-     * or just `obj.x = 5`  
-     * For example, `obj.x = 5` will become a transition with `from = obj.x` and `to = 5`.  
-     * Transition will be generated for every assigment in the block.  
-     * It is also possible to make a relative transition: `obj.y += 5`  
-     * So on every start a `to` var will be initialized as `obj.y + 5` instead of simple `5`. Should be useful for reuse.
+     * `obj.x = 5`  
+     * Own transition will be generated for every assigment in the properties block. 
+     * For example, `obj.x = 5` will become a transition with var `from = obj.x` and var `to = 5`.  
+     * It is also possible to make a relative transition by passing a short assingment `obj.y += 5`. 
+     * So on every start var `to` will be initialized as `obj.y + 5` instead of simple `5`. It can be useful for reuse.
      * @param easing hxease.IEasing
      * @param properties function or just block with expressions  
-     * 
      */
 #if twny_autocompletion_hack
     // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
@@ -215,8 +214,8 @@ class Tween {
         return head != null ? head.repeatable : repeatable;
     }
 
-    function get_disposeOnComplete() {
-        return head != null ? head.disposeOnComplete : disposeOnComplete;
+    function get_disposable() {
+        return head != null ? head.disposable : disposable;
     }
 
     function get_completed() {
