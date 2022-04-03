@@ -13,7 +13,7 @@ class TweenBuilder {
     public static function transitions(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
         var transitions = [];
 
-        function unsupported(expr:Expr) {
+        function fail(expr:Expr) {
             var msg = 'Expression `${expr.toString()}` is not allowed! Assignment (like `a.b = c` or `a.b += c`) is required instead!';
 #if twny_autocompletion_hack
             // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
@@ -22,10 +22,10 @@ class TweenBuilder {
             Context.warning(msg, expr.pos);
 
             var error = 'This is errored transition of expr `${expr.toString()}`!';
-            return macro new twny.internal.Transition($easing, 0.0, () -> throw $v{error}, v -> $expr);
+            var tr = macro new twny.internal.TransitionDefault($easing, () -> throw $v{error}, 0.0, v -> $expr);
+            transitions.push(tr);
 #else
             Context.error(msg, expr.pos);
-            return macro null;
 #end
         }
 
@@ -40,9 +40,10 @@ class TweenBuilder {
                 case EBinop(op, e1, e2): {
                     var getFrom = macro function():Float return $e1;
                     var set = macro function(v:Float) $e1 = v;
-                    var tr = switch op {
+                    switch op {
                         case OpAssign: {
-                            macro new twny.internal.TransitionDefault($easing, $getFrom, $e2, $set);
+                            var tr = macro new twny.internal.TransitionDefault($easing, $getFrom, $e2, $set);
+                            transitions.push(tr);
                         }
                         case OpAssignOp(aop): {
                             var to = {
@@ -50,25 +51,25 @@ class TweenBuilder {
                                 pos: expr.pos
                             }
                             var getTo = macro function():Float return $to;
-                            macro new twny.internal.TransitionRelative($easing, $getFrom, $getTo, $set);
+                            var tr = macro new twny.internal.TransitionRelative($easing, $getFrom, $getTo, $set);
+                            transitions.push(tr);
                         }
                         case _: {
-                            unsupported(expr);
+                            fail(expr);
                         }
                     }
-                    transitions.push(tr);
                 }
                 case _: {
-                    unsupported(expr);
+                    fail(expr);
                 }
             }
         }
 
         process(properties);
 
-        var ret = transitions.fold((e:Expr, r:Expr) -> macro @:privateAccess $r.addTransition($e), self);
+        var ret = transitions.fold((e:Expr, r:Expr) -> macro $r.addTransition($e), self);
 
-        return ret;
+        return macro @:privateAccess $ret;
     }
 
 }
