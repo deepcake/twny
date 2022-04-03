@@ -19,12 +19,12 @@ class TweenBuilder {
             // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
             // todo: remove after fix
             msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Do not forget to fix it!';
-            Context.warning(msg, Context.currentPos());
+            Context.warning(msg, expr.pos);
 
             var error = 'This is errored transition of expr `${expr.toString()}`!';
             return macro new twny.internal.Transition($easing, 0.0, () -> throw $v{error}, v -> $expr);
 #else
-            Context.error(msg, Context.currentPos());
+            Context.error(msg, expr.pos);
             return macro null;
 #end
         }
@@ -47,7 +47,7 @@ class TweenBuilder {
                         case OpAssignOp(aop): {
                             var to = {
                                 expr: EBinop(aop, e1, e2),
-                                pos: Context.currentPos()
+                                pos: expr.pos
                             }
                             var getTo = macro function():Float return $to;
                             macro new twny.internal.TransitionRelative($easing, $getFrom, $getTo, $set);
