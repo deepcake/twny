@@ -24,7 +24,7 @@ class Twny {
         }
     }
 
-    public function reset() {
+    public static function reset() {
         for (tween in tweens) {
             tween.dispose();
         }

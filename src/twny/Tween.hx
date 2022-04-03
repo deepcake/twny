@@ -112,7 +112,7 @@ class Tween {
     public function then(tween:Tween) {
         tween.set_head(head != null ? head : this);
         if (stocked) {
-            stock();
+            tween.stock();
         }
         this.next = tween;
         return this;
@@ -144,10 +144,12 @@ class Tween {
 
     public function pause() {
         paused = true;
+        return this;
     }
 
     public function resume() {
         paused = false;
+        return this;
     }
 
 
