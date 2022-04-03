@@ -1,5 +1,7 @@
 package twny;
 
+import twny.internal.Transition;
+
 #if macro
 import haxe.macro.Expr;
 #end
@@ -186,11 +188,11 @@ class Tween {
 #else
     public macro function to(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
 #end
-        return twny.macro.Tween.transitions(self, easing, properties);
+        return twny.internal.macro.TweenBuilder.transitions(self, easing, properties);
     }
 
 
-    @:noCompletion public function addTransition(t:Transition):Tween {
+    function addTransition(t:Transition):Tween {
         transitions.push(t);
         return this;
     }

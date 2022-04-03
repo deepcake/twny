@@ -193,7 +193,7 @@ class Main extends buddy.SingleSuite {
                                 it("should have correct value", o.x.should.be(250));
 
                                 describe("then update with overhead to 2nd half", {
-                                    beforeEach(Twny.update(d + d));
+                                    beforeEach(Twny.update(d));
                                     it("should have correct value", o.x.should.be(450));
                                 });
                             });

@@ -1,4 +1,4 @@
-package twny.macro;
+package twny.internal.macro;
 
 #if macro
 import haxe.macro.Expr;
@@ -8,7 +8,7 @@ import haxe.macro.Context;
 using haxe.macro.ExprTools;
 using Lambda;
 
-class Tween {
+class TweenBuilder {
 
     public static function transitions(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
         var transitions = [];
@@ -22,7 +22,7 @@ class Tween {
             Context.warning(msg, Context.currentPos());
 
             var error = 'This is errored transition of expr `${expr.toString()}`!';
-            return macro new twny.Transition($easing, 0.0, () -> throw $v{error}, v -> $expr);
+            return macro new twny.internal.Transition($easing, 0.0, () -> throw $v{error}, v -> $expr);
 #else
             Context.error(msg, Context.currentPos());
             return macro null;
@@ -38,18 +38,19 @@ class Tween {
                     exprs.iter(process);
                 }
                 case EBinop(op, e1, e2): {
-                    var get = macro function():Float return $e1;
+                    var getFrom = macro function():Float return $e1;
                     var set = macro function(v:Float) $e1 = v;
                     var tr = switch op {
                         case OpAssign: {
-                            macro new twny.Transition($easing, $e2, $get, $set);
+                            macro new twny.internal.TransitionDefault($easing, $getFrom, $e2, $set);
                         }
                         case OpAssignOp(aop): {
-                            var from = {
+                            var to = {
                                 expr: EBinop(aop, e1, e2),
                                 pos: Context.currentPos()
                             }
-                            macro new twny.Transition($easing, $from, $get, $set);
+                            var getTo = macro function():Float return $to;
+                            macro new twny.internal.TransitionRelative($easing, $getFrom, $getTo, $set);
                         }
                         case _: {
                             unsupported(expr);
@@ -65,7 +66,7 @@ class Tween {
 
         process(properties);
 
-        var ret = transitions.fold((e:Expr, r:Expr) -> macro $r.addTransition($e), self);
+        var ret = transitions.fold((e:Expr, r:Expr) -> macro @:privateAccess $r.addTransition($e), self);
 
         return ret;
     }
