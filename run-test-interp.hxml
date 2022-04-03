@@ -5,6 +5,8 @@
 -L hxease
 
 -main Main
+-dce full
 --interp
 
 -D twny_autocompletion_hack
+-D buddy-ignore-passing-specs

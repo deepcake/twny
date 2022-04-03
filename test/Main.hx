@@ -1,3 +1,4 @@
+import twny.Twny;
 import twny.Tween;
 import hxease.Linear;
 
@@ -5,70 +6,238 @@ using buddy.Should;
 
 class Main extends buddy.SingleSuite {
     public function new() {
-        describe("Test", {
+        describe("test", {
+            beforeEach(Twny.reset());
 
-            var o;
-            var t;
+            describe("when init 1st tween with then 2nd with then 3rd", {
+                var d = 10, o, t0, t1, t2;
+                beforeEach({
+                    o = {
+                        x: 0.
+                    };
+                    t0 = new Tween(d)
+                        .to(Linear.easeNone, o.x = 100)
+                        .then(
+                            t1 = new Tween(d)
+                                .to(Linear.easeNone, o.x = 300)
+                                .then(
+                                    t2 = new Tween(d)
+                                        .to(Linear.easeNone, o.x = 600)
+                                )
+                        );
+                });
 
-            beforeEach({
-                o = { 
-                    x: .0, 
-                    y: .0, 
-                    z: 100.,
-                    n: { 
-                        a: .0, 
+                describe("then start", {
+                    beforeEach(t0.start());
+
+                    describe("then update to 1st half", {
+                        beforeEach(Twny.update(d / 2));
+                        it("should have correct value", o.x.should.be(50));
+
+                        describe("then update to 2nd half", {
+                            beforeEach(Twny.update(d));
+                            it("should have correct value", o.x.should.be(200));
+
+                            describe("then update to 3rd half", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(450));
+
+                                describe("then update with overhead to 2nd half", {
+                                    beforeEach(Twny.update(d + d));
+                                    it("should have correct value", o.x.should.be(600));
+                                });
+                            });
+
+                            describe("then pause", {
+                                beforeEach(t0.pause());
+
+                                describe("then update to 3rd half", {
+                                    beforeEach(Twny.update(d));
+                                    it("should have correct value", o.x.should.be(200));
+                                });
+
+                                describe("then resume", {
+                                    beforeEach(t0.resume());
+
+                                    describe("then update to 3rd half", {
+                                        beforeEach(Twny.update(d));
+                                        it("should update object correctly", o.x.should.be(450));
+                                    });
+                                });
+                            });
+
+                            describe("then stop", {
+                                beforeEach(t0.stop());
+
+                                describe("then update to 3rd half", {
+                                    beforeEach(Twny.update(d));
+                                    it("should update object correctly", o.x.should.be(200));
+                                });
+
+                                describe("then start", {
+                                    beforeEach(t0.start());
+
+                                    describe("then update to 1st half", {
+                                        beforeEach(Twny.update(d / 2));
+                                        it("should have correct value", o.x.should.be(150));
+                                    });
+                                });
+                            });
+
+                            describe("then stop and complete", {
+                                beforeEach(t0.stop(true));
+
+                                describe("then update to 3rd half", {
+                                    beforeEach(Twny.update(d));
+                                    it("should update object correctly", o.x.should.be(600));
+                                });
+
+                                describe("then start", {
+                                    beforeEach(t0.start());
+
+                                    describe("then update to 1st half", {
+                                        beforeEach(Twny.update(d / 2));
+                                        it("should have correct value", o.x.should.be(350));
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+
+                describe("then make tween repeat and start", {
+                    beforeEach(t0.repeat().start());
+
+                    describe("then update to 1st half", {
+                        beforeEach(Twny.update(d / 2));
+                        it("should have correct value", o.x.should.be(50));
+
+                        describe("then update to 2nd half", {
+                            beforeEach(Twny.update(d));
+                            it("should have correct value", o.x.should.be(200));
+
+                            describe("then update to 3rd half", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(450));
+
+                                describe("then update with overhead to 2nd half", {
+                                    beforeEach(Twny.update(d + d));
+                                    it("should have correct value", o.x.should.be(200));
+                                });
+                            });
+                        });
+                    });
+                });
+
+                describe("then make tween once and start", {
+                    beforeEach(t0.once().start());
+
+                    describe("then update to 1st half", {
+                        beforeEach(Twny.update(d / 2));
+                        it("should have correct value", o.x.should.be(50));
+
+                        describe("then update to 2nd half", {
+                            beforeEach(Twny.update(d));
+                            it("should have correct value", o.x.should.be(200));
+
+                            describe("then update to 3rd half", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(450));
+
+                                describe("then update with overhead to 2nd half", {
+                                    beforeEach(Twny.update(d + d));
+                                    it("should have correct value", o.x.should.be(600));
+                                    it("should be disposed", @:privateAccess {
+                                        t0.head.should.be(null);
+                                        t1.head.should.be(null);
+                                        t2.head.should.be(null);
+                                        t0.running.should.be(false);
+                                        t1.running.should.be(false);
+                                        t2.running.should.be(false);
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
+            describe("when init relative transition", {
+                var d = 10, o, t0, t1;
+                beforeEach({
+                    o = {
+                        x: 0.
+                    };
+                    t0 = new Tween(d)
+                        .to(Linear.easeNone, o.x += 100)
+                        .then(
+                            t1 = new Tween(d)
+                                .to(Linear.easeNone, o.x *= 2)
+                        )
+                        .repeat();
+                });
+
+                describe("then start", {
+                    beforeEach(t0.start());
+
+                    describe("then update to 1st half", {
+                        beforeEach(Twny.update(d / 2));
+                        it("should have correct value", o.x.should.be(50));
+
+                        describe("then update to 2nd half", {
+                            beforeEach(Twny.update(d));
+                            it("should have correct value", o.x.should.be(150));
+
+                            describe("then update with overhead to 1st half", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(250));
+
+                                describe("then update with overhead to 2nd half", {
+                                    beforeEach(Twny.update(d + d));
+                                    it("should have correct value", o.x.should.be(450));
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
+            describe("when init transition in different ways", {
+                var o, t;
+                beforeEach({
+                    o = { 
+                        x: .0, 
+                        y: .0, 
+                        z: 100.,
                         n: { 
-                            b: .0 
+                            a: .0, 
+                            n: { 
+                                b: .0 
+                            } 
                         } 
-                    } 
-                };
+                    };
+                    t = new Tween(10.0)
+                        .to(Linear.easeNone, o.x = -100)
+                        .to(Linear.easeNone, () -> o.y = 300)
+                        .to(Linear.easeNone, () -> { o.z = 500; })
+                        .to(Linear.easeNone, { 
+                            o.n.a = 1.0;
+                            o.n.n.b = 1.0;
+                        })
+                        .start();
+                });
 
-                t = new Tween(10.0, true)
-                    .to(Linear.easeNone, {
-                        o.x = 100;
-                        o.y = 200;
-                        o.z = 0;
-                    })
-                    .then(
-                        new Tween(10.0)
-                            .to(Linear.easeNone, o.x = -100)
-                            .to(Linear.easeNone, () -> o.y = 300)
-                            .to(Linear.easeNone, () -> { o.z = 10000; })
-                            .to(Linear.easeNone, { 
-                                o.n.a = 1.0;
-                                o.n.n.b = o.z;
-                            })
-                    )
-                    .start();
+                describe("then update to 1st half", {
+                    beforeEach(t.update(5));
+                    it("should update object correctly", {
+                        o.x.should.be(-50);
+                        o.y.should.be(150);
+                        o.z.should.be(300);
+                        o.n.a.should.be(0.5);
+                        o.n.n.b.should.be(0.5);
+                    });
+                });
             });
-
-            describe("when update x0.5", {
-                beforeEach(t.update(5));
-                it("should update x correctly", o.x.should.be(50));
-                it("should update y correctly", o.y.should.be(100));
-                it("should update z correctly", o.z.should.be(50));
-                it("should update n.a correctly", o.n.a.should.be(0));
-                it("should update n.n.b correctly", o.n.n.b.should.be(0));
-            });
-
-            describe("when update x1.0", {
-                beforeEach(t.update(10));
-                it("should update x correctly", o.x.should.be(100));
-                it("should update y correctly", o.y.should.be(200));
-                it("should update z correctly", o.z.should.be(0));
-                it("should update n.a correctly", o.n.a.should.be(0));
-                it("should update n.n.b correctly", o.n.n.b.should.be(0));
-            });
-
-            describe("when update x1.0 + x1.0", {
-                beforeEach(t.update(20));
-                it("should update x correctly", o.x.should.be(-100));
-                it("should update y correctly", o.y.should.be(300));
-                it("should update z correctly", o.z.should.be(10000));
-                it("should update n.a correctly", o.n.a.should.be(1.0));
-                it("should update n.n.b correctly", o.n.n.b.should.be(100));
-            });
-
         });
     }
 }

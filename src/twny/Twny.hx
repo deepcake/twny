@@ -13,7 +13,7 @@ class Twny {
         while (i < l) {
             var tween = tweens[i];
             tween.update(dt);
-            if (tween.disposed) {
+            if (!tween.running) {
                 tweens.splice(i, 1);
                 tween.stocked = false;
                 l--;

@@ -19,18 +19,16 @@ class Tween {
     var running = false;
 
     var paused(get, default) = false;
-    var repeat(get, default) = false;
+    var repeatable(get, default) = false;
     var disposeOnComplete(get, default) = false;
 
     var stocked = false;
-    var disposed = false;
 
     var completed(get, null):Bool;
 
 
-    public function new(duration:Float, repeat = false) {
+    public function new(duration:Float) {
         this.duration = duration;
-        this.repeat = repeat;
     }
 
     public function once() {
@@ -38,8 +36,13 @@ class Tween {
         return this;
     }
 
+    public function repeat() {
+        repeatable = true;
+        return this;
+    }
+
     public function update(dt:Float) {
-        if (running && !paused) {
+        if (dt > 0 && running && !paused) {
 
             elapsed += dt;
 
@@ -61,7 +64,7 @@ class Tween {
                 }
                 else {
                     if (head != null) {
-                        if (repeat) {
+                        if (repeatable) {
                             head.setup();
                             head.update(offset);
                         }
@@ -70,7 +73,7 @@ class Tween {
                         }
                     }
                     else {
-                        if (repeat) {
+                        if (repeatable) {
                             this.setup();
                             this.update(offset);
                         }
@@ -85,7 +88,6 @@ class Tween {
 
 
     public function start() {
-        stock();
         setup();
         return this;
     }
@@ -96,6 +98,7 @@ class Tween {
         for (t in transitions) {
             t.reset();
         }
+        stock();
     }
 
     function stock() {
@@ -103,17 +106,11 @@ class Tween {
             Twny.addTween(this);
             stocked = true;
         }
-        if (next != null) {
-            next.stock();
-        }
     }
 
 
     public function then(tween:Tween) {
         tween.set_head(head != null ? head : this);
-        if (stocked) {
-            tween.stock();
-        }
         this.next = tween;
         return this;
     }
@@ -153,7 +150,7 @@ class Tween {
     }
 
 
-    function dispose() {
+    public function dispose() {
         if (next != null) {
             next.dispose();
         }
@@ -162,7 +159,6 @@ class Tween {
         next = null;
         elapsed = 0.0;
         running = false;
-        disposed = true;
     }
 
 
@@ -213,8 +209,8 @@ class Tween {
         return head != null ? head.paused : paused;
     }
 
-    function get_repeat() {
-        return head != null ? head.repeat : repeat;
+    function get_repeatable() {
+        return head != null ? head.repeatable : repeatable;
     }
 
     function get_disposeOnComplete() {
