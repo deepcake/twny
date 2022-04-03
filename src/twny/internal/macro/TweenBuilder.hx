@@ -10,23 +10,24 @@ using Lambda;
 
 class TweenBuilder {
 
+
     public static function transitions(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
         var transitions = [];
 
         function fail(expr:Expr) {
             var msg = 'Expression `${expr.toString()}` is not allowed! Assignment (like `a.b = c` or `a.b += c`) is required instead!';
-#if twny_autocompletion_hack
+
             // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
-            // todo: remove after fix
+            #if twny_autocompletion_hack
             msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Do not forget to fix it!';
             Context.warning(msg, expr.pos);
 
             var error = 'This is errored transition of expr `${expr.toString()}`!';
-            var tr = macro new twny.internal.TransitionDefault($easing, () -> throw $v{error}, 0.0, v -> $expr);
+            var tr = macro new twny.internal.DefaultTransition($easing, () -> throw $v{error}, 0.0, v -> $expr);
             transitions.push(tr);
-#else
+            #else
             Context.error(msg, expr.pos);
-#end
+            #end
         }
 
         function process(expr:Expr) {
@@ -38,11 +39,11 @@ class TweenBuilder {
                     exprs.iter(process);
                 }
                 case EBinop(op, e1, e2): {
-                    var getFrom = macro function():Float return $e1;
+                    var getFr = macro function():Float return $e1;
                     var set = macro function(v:Float) $e1 = v;
                     switch op {
                         case OpAssign: {
-                            var tr = macro new twny.internal.TransitionDefault($easing, $getFrom, $e2, $set);
+                            var tr = macro new twny.internal.DefaultTransition($easing, $getFr, $e2, $set);
                             transitions.push(tr);
                         }
                         case OpAssignOp(aop): {
@@ -51,7 +52,7 @@ class TweenBuilder {
                                 pos: expr.pos
                             }
                             var getTo = macro function():Float return $to;
-                            var tr = macro new twny.internal.TransitionRelative($easing, $getFrom, $getTo, $set);
+                            var tr = macro new twny.internal.RelativeTransition($easing, $getFr, $getTo, $set);
                             transitions.push(tr);
                         }
                         case _: {

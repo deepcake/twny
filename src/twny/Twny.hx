@@ -5,9 +5,8 @@ import haxe.ds.ObjectMap;
 @:access(twny)
 class Twny {
 
-    static var tweens = new Array<Tween>();
-
     static var targets = new ObjectMap<Dynamic, Array<Tween>>();
+    static var running = new Array<Tween>();
 
 
     public static function tween<T:Dynamic>(target:T, duration:Float) {
@@ -25,14 +24,14 @@ class Twny {
 
 
     public static function update(dt:Float) {
-        var l = tweens.length;
+        var l = running.length;
         var i = 0;
         while (i < l) {
-            var tween = tweens[i];
+            var tween = running[i];
             tween.update(dt);
             if (!tween.running) {
                 tween.unstock();
-                tweens.splice(i, 1);
+                running.splice(i, 1);
                 l--;
             }
             else {
@@ -42,15 +41,15 @@ class Twny {
     }
 
     public static function reset() {
-        for (tween in tweens) {
+        for (tween in running) {
             tween.dispose();
         }
-        tweens.resize(0);
+        running.resize(0);
     }
 
 
     static inline function addTween(tween:Tween) {
-        tweens.push(tween);
+        running.push(tween);
     }
 
     static inline function addTargetTween(target:Dynamic, tween:Tween) {

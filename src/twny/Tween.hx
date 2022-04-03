@@ -9,7 +9,6 @@ import haxe.macro.Expr;
 @:access(twny)
 class Tween {
 
-
     var transitions = new Array<Transition>();
 
     var head(default, set):Tween;
@@ -181,18 +180,19 @@ class Tween {
      * @param easing hxease.IEasing
      * @param properties function or just block with expressions  
      */
-#if twny_autocompletion_hack
     // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
-    // todo: remove after fix
+    #if twny_autocompletion_hack
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
         var single = easingAndProperties.length == 1;
         var easing = single ? macro hxease.Linear.easeNone : easingAndProperties[0];
         var properties = single ? easingAndProperties[0] : easingAndProperties[1];
-#else
-    public macro function to(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
-#end
         return twny.internal.macro.TweenBuilder.transitions(self, easing, properties);
     }
+    #else
+    public macro function to(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
+        return twny.internal.macro.TweenBuilder.transitions(self, easing, properties);
+    }
+    #end
 
 
     function addTransition(t:Transition):Tween {
