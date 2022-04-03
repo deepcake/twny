@@ -1,8 +1,8 @@
-import twny.Twny;
 import twny.Tween;
 import hxease.Linear;
 
 using buddy.Should;
+using twny.Twny;
 
 class Main extends buddy.SingleSuite {
     public function new() {
@@ -196,6 +196,57 @@ class Main extends buddy.SingleSuite {
                                     beforeEach(Twny.update(d));
                                     it("should have correct value", o.x.should.be(450));
                                 });
+                            });
+                        });
+                    });
+                });
+            });
+
+            describe("when init target tween", {
+                var d = 10, o, t0, t1, t2, t3;
+                beforeEach({
+                    o = {
+                        x: 0.,
+                        y: 0.
+                    };
+
+                    t0 = o.tween(d)
+                        .to(Linear.easeNone, o.x = 100)
+                        .then(
+                            t1 = o.tween(d).to(Linear.easeNone, o.x = 200)
+                        )
+                        .repeat();
+
+                    t2 = o.tween(d)
+                        .to(Linear.easeNone, o.y = -100)
+                        .then(
+                            t3 = o.tween(d).to(Linear.easeNone, o.y = -200)
+                        )
+                        .repeat();
+                });
+
+                describe("then start", {
+                    beforeEach(t0.start());
+                    beforeEach(t2.start());
+
+                    describe("then update to 1st half", {
+                        beforeEach(Twny.update(d / 2));
+                        it("should have correct value", o.x.should.be(50));
+                        it("should have correct value", o.y.should.be(-50));
+
+                        describe("then update to 2nd half", {
+                            beforeEach(Twny.update(d));
+                            it("should have correct value", o.x.should.be(150));
+                            it("should have correct value", o.y.should.be(-150));
+                        });
+
+                        describe("then target stop", {
+                            beforeEach(o.stop());
+
+                            describe("then update with overhead to 1st half", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(50));
+                                it("should have correct value", o.y.should.be(-50));
                             });
                         });
                     });

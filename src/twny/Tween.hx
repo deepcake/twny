@@ -110,6 +110,10 @@ class Tween {
         }
     }
 
+    function unstock() {
+        stocked = false;
+    }
+
 
     public function then(tween:Tween) {
         tween.set_head(head != null ? head : this);
@@ -181,9 +185,9 @@ class Tween {
     // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
     // todo: remove after fix
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
-        var singleArg = easingAndProperties.length == 1;
-        var easing = singleArg ? macro hxease.Linear.easeNone : easingAndProperties[0];
-        var properties = singleArg ? easingAndProperties[0] : easingAndProperties[1];
+        var single = easingAndProperties.length == 1;
+        var easing = single ? macro hxease.Linear.easeNone : easingAndProperties[0];
+        var properties = single ? easingAndProperties[0] : easingAndProperties[1];
 #else
     public macro function to(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
 #end
