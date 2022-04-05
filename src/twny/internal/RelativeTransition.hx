@@ -4,6 +4,7 @@ import hxease.IEasing;
 
 class RelativeTransition extends Transition {
 
+
     var getTo:Void->Float;
     var getFr:Void->Float;
 
@@ -15,7 +16,7 @@ class RelativeTransition extends Transition {
         this.set = set;
     }
 
-    override function reset() {
+    override function setup() {
         from = getFr();
         to = getTo();
     }

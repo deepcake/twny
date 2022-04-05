@@ -4,6 +4,7 @@ import hxease.IEasing;
 
 class DefaultTransition extends Transition {
 
+
     var getFr:Void->Float;
 
 
@@ -14,7 +15,7 @@ class DefaultTransition extends Transition {
         this.set = set;
     }
 
-    override function reset() {
+    override function setup() {
         from = getFr();
     }
 

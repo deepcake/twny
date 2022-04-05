@@ -12,7 +12,7 @@ class Transition {
     var set:(value:Float)->Void;
 
 
-    public function reset() {
+    public function setup() {
         // nothing here
     }
 

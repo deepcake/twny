@@ -9,6 +9,7 @@ import haxe.macro.Expr;
 @:access(twny)
 class Tween {
 
+
     var transitions = new Array<Transition>();
 
     var head(default, set):Tween;
@@ -93,34 +94,6 @@ class Tween {
         return this;
     }
 
-    function setup() {
-        elapsed = 0.0;
-        running = true;
-        for (t in transitions) {
-            t.reset();
-        }
-        stock();
-    }
-
-    function stock() {
-        if (!stocked) {
-            Twny.addTween(this);
-            stocked = true;
-        }
-    }
-
-    function unstock() {
-        stocked = false;
-    }
-
-
-    public function then(tween:Tween) {
-        tween.set_head(head != null ? head : this);
-        this.next = tween;
-        return this;
-    }
-
-
     public function stop(complete = false) {
         if (complete && elapsed < duration) {
             for (t in transitions) {
@@ -143,6 +116,16 @@ class Tween {
         return this;
     }
 
+    public function dispose() {
+        if (next != null) {
+            next.dispose();
+        }
+        transitions.resize(0);
+        head = null;
+        next = null;
+        elapsed = 0.0;
+        running = false;
+    }
 
     public function pause() {
         paused = true;
@@ -155,15 +138,10 @@ class Tween {
     }
 
 
-    public function dispose() {
-        if (next != null) {
-            next.dispose();
-        }
-        transitions.resize(0);
-        head = null;
-        next = null;
-        elapsed = 0.0;
-        running = false;
+    public function then(tween:Tween) {
+        tween.set_head(head != null ? head : this);
+        this.next = tween;
+        return this;
     }
 
 
@@ -193,6 +171,27 @@ class Tween {
         return twny.internal.macro.TweenBuilder.transitions(self, easing, properties);
     }
     #end
+
+
+    function setup() {
+        elapsed = 0.0;
+        running = true;
+        for (t in transitions) {
+            t.setup();
+        }
+        stock();
+    }
+
+    function stock() {
+        if (!stocked) {
+            Twny.addTween(this);
+            stocked = true;
+        }
+    }
+
+    function unstock() {
+        stocked = false;
+    }
 
 
     function addTransition(t:Transition):Tween {
