@@ -213,14 +213,14 @@ class Main extends buddy.SingleSuite {
                     t0 = o.tween(d)
                         .to(Linear.easeNone, o.x = 100)
                         .then(
-                            t1 = o.tween(d).to(Linear.easeNone, o.x = 200)
+                            t1 = o.tween(d).to(Linear.easeNone, o.x = 300)
                         )
                         .repeat();
 
                     t2 = o.tween(d)
                         .to(Linear.easeNone, o.y = -100)
                         .then(
-                            t3 = o.tween(d).to(Linear.easeNone, o.y = -200)
+                            t3 = o.tween(d).to(Linear.easeNone, o.y = -300)
                         )
                         .repeat();
                 });
@@ -228,6 +228,9 @@ class Main extends buddy.SingleSuite {
                 describe("then start", {
                     beforeEach(t0.start());
                     beforeEach(t2.start());
+                    it("should create target store", {
+                        @:privateAccess Twny.targets.get(o).should.not.be(null);
+                    });
 
                     describe("then update to 1st half", {
                         beforeEach(Twny.update(d / 2));
@@ -236,13 +239,33 @@ class Main extends buddy.SingleSuite {
 
                         describe("then update to 2nd half", {
                             beforeEach(Twny.update(d));
-                            it("should have correct value", o.x.should.be(150));
-                            it("should have correct value", o.y.should.be(-150));
+                            it("should have correct value", o.x.should.be(200));
+                            it("should have correct value", o.y.should.be(-200));
 
                             describe("then update with overhead to 1st end", {
                                 beforeEach(Twny.update(d + d / 2));
                                 it("should have correct value", o.x.should.be(100));
                                 it("should have correct value", o.y.should.be(-100));
+                            });
+                        });
+
+                        describe("then target pause", {
+                            beforeEach(o.pause());
+
+                            describe("then update to 2nd half", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(50));
+                                it("should have correct value", o.y.should.be(-50));
+                            });
+
+                            describe("then target resume", {
+                                beforeEach(o.resume());
+
+                                describe("then update to 2nd half", {
+                                    beforeEach(Twny.update(d));
+                                    it("should have correct value", o.x.should.be(200));
+                                    it("should have correct value", o.y.should.be(-200));
+                                });
                             });
                         });
 
@@ -253,6 +276,69 @@ class Main extends buddy.SingleSuite {
                                 beforeEach(Twny.update(d));
                                 it("should have correct value", o.x.should.be(50));
                                 it("should have correct value", o.y.should.be(-50));
+                            });
+
+                            describe("then target start", {
+                                beforeEach(o.start());
+    
+                                describe("then update to 1st half", {
+                                    beforeEach(Twny.update(d / 2));
+                                    it("should have correct value", o.x.should.be(75));
+                                    it("should have correct value", o.y.should.be(-75));
+                                });
+                            });
+                        });
+
+                        describe("then target stop and complete", {
+                            beforeEach(o.stop(true));
+
+                            describe("then update to 2nd half", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(300));
+                                it("should have correct value", o.y.should.be(-300));
+                            });
+
+                            describe("then target start", {
+                                beforeEach(o.start());
+
+                                describe("then update to 1st half", {
+                                    beforeEach(Twny.update(d / 2));
+                                    it("should have correct value", o.x.should.be(200));
+                                    it("should have correct value", o.y.should.be(-200));
+                                });
+                            });
+                        });
+
+                        describe("then target dispose", {
+                            beforeEach(o.dispose());
+                            it("should remove target store", {
+                                @:privateAccess Twny.targets.get(o).should.be(null);
+                            });
+                            it("should be disposed", @:privateAccess {
+                                t0.head.should.be(null);
+                                t1.head.should.be(null);
+                                t2.head.should.be(null);
+                                t3.head.should.be(null);
+                                t0.running.should.be(false);
+                                t1.running.should.be(false);
+                                t2.running.should.be(false);
+                                t3.running.should.be(false);
+                            });
+
+                            describe("then update", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(50));
+                                it("should have correct value", o.y.should.be(-50));
+                            });
+
+                            describe("then target start", {
+                                beforeEach(o.start());
+    
+                                describe("then update", {
+                                    beforeEach(Twny.update(d));
+                                    it("should have correct value", o.x.should.be(50));
+                                    it("should have correct value", o.y.should.be(-50));
+                                });
                             });
                         });
                     });

@@ -1,11 +1,15 @@
 package twny;
 
 import haxe.ds.ObjectMap;
+import haxe.ds.List;
+
+using Lambda;
 
 @:access(twny)
 class Twny {
 
-    static var targets = new ObjectMap<Dynamic, Array<Tween>>();
+
+    static var targets = new ObjectMap<Dynamic, List<Tween>>();
     static var running = new Array<Tween>();
 
 
@@ -13,13 +17,24 @@ class Twny {
         return new TargetTween(target, duration);
     }
 
-    public static function stop<T:Dynamic>(target:T, complete = false) {
-        var targetTweens = targets.get(target);
-        if (targetTweens != null) {
-            for (tween in targetTweens) {
-                tween.stop(complete);
-            }
-        }
+    public static function start(target:Dynamic) {
+        inline forEachTargetTween(target, t -> t.start());
+    }
+
+    public static function stop(target:Dynamic, complete = false) {
+        inline forEachTargetTween(target, t -> t.stop(complete));
+    }
+
+    public static function dispose(target:Dynamic) {
+        inline forEachTargetTween(target, t -> t.dispose());
+    }
+
+    public static function pause(target:Dynamic) {
+        inline forEachTargetTween(target, t -> t.pause());
+    }
+
+    public static function resume(target:Dynamic) {
+        inline forEachTargetTween(target, t -> t.resume());
     }
 
 
@@ -45,6 +60,13 @@ class Twny {
             tween.dispose();
         }
         running.resize(0);
+
+        for (targetTweens in targets) {
+            for (tween in targetTweens) {
+                tween.dispose();
+            }
+        }
+        targets.clear();
     }
 
 
@@ -55,10 +77,12 @@ class Twny {
     static inline function addTargetTween(target:Dynamic, tween:Tween) {
         var targetTweens = targets.get(target);
         if (targetTweens == null) {
-            targetTweens = new Array<Tween>();
+            targetTweens = new List<Tween>();
             targets.set(target, targetTweens);
         }
-        targetTweens.push(tween);
+        if (!targetTweens.has(tween)) {
+            targetTweens.add(tween);
+        }
     }
 
     static inline function removeTargetTween(target:Dynamic, tween:Tween) {
@@ -67,6 +91,15 @@ class Twny {
             targetTweens.remove(tween);
             if (targetTweens.length == 0) {
                 targets.remove(target);
+            }
+        }
+    }
+
+    static inline function forEachTargetTween(target:Dynamic, f:Tween->Void) {
+        var targetTweens = targets.get(target);
+        if (targetTweens != null) {
+            for (tween in targetTweens) {
+                f(tween);
             }
         }
     }

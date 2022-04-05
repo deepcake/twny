@@ -10,7 +10,11 @@ class TargetTween<T:Dynamic> extends Tween {
     public function new(target:T, duration:Float) {
         super(duration);
         this.target = target;
+    }
+
+    override function start() {
         Twny.addTargetTween(target, this);
+        return super.start();
     }
 
     override function dispose() {
