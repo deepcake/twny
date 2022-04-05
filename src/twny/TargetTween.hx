@@ -1,7 +1,7 @@
 package twny;
 
 @:access(twny)
-class TargetTween<T:Dynamic> extends Tween {
+class TargetTween<T:{}> extends Tween {
 
 
     var target:T;
