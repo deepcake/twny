@@ -17,6 +17,10 @@ class Tween {
 
     var stocked = false;
 
+    var onStartCb:Void->Void;
+    var onUpdateCb:Void->Void;
+    var onCompleteCb:Void->Void;
+
     public var duration(default, null):Float;
 
     public var elapsed(default, null) = 0.0;
@@ -71,11 +75,19 @@ class Tween {
                 t.apply(k);
             }
 
+            if (onUpdateCb != null) {
+                onUpdateCb();
+            }
+
             if (elapsed >= duration) {
                 var offset = elapsed - duration;
 
                 elapsed = duration;
                 running = false;
+
+                if (onCompleteCb != null) {
+                    onCompleteCb();
+                }
 
                 if (next != null) {
                     for (n in next) {
@@ -157,17 +169,53 @@ class Tween {
         running = false;
     }
 
+    /**
+     * Pauses tween running with ability of resuming
+     */
     public function pause() {
         paused = true;
         return this;
     }
 
+    /**
+     * Resumes tween running after it has been paused
+     */
     public function resume() {
         paused = false;
         return this;
     }
 
+    /**
+     * Adds a callback that will be called every time _this_ tween is started (multiple times if `repeatable == true`)
+     * @param cb `Void->Void`
+     */
+    public function onStart(cb:Void->Void) {
+        onStartCb = cb;
+        return this;
+    }
 
+    /**
+     * Adds a callback that will be called every time _this_ tween is updated
+     * @param cb `Void->Void`
+     */
+    public function onUpdate(cb:Void->Void) {
+        onUpdateCb = cb;
+        return this;
+    }
+
+    /**
+     * Adds a callback that will be called every time _this_ tween is completed (multiple times if `repeatable == true`)
+     * @param cb `Void->Void`
+     */
+    public function onComplete(cb:Void->Void) {
+        onCompleteCb = cb;
+        return this;
+    }
+
+    /**
+     * Adds a nested tween that will start when this tween ends
+     * @param tween `Tween`
+     */
     public function then(tween:Tween) {
         tween.set_head(head != null ? head : this);
         if (next == null) {
@@ -207,12 +255,15 @@ class Tween {
 
 
     function setup() {
+        stock();
         elapsed = 0.0;
         running = true;
         for (t in transitions) {
             t.setup();
         }
-        stock();
+        if (onStartCb != null) {
+            onStartCb();
+        }
     }
 
     function stock() {

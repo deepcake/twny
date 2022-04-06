@@ -7,6 +7,11 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
 
 ### Wip
 
+### Features Achieved
+ - Multiple tween chaining with different duration!
+ - Parallel transitions with different easing!
+ - Macro-based, no reflection (but a lot of macro-generated functions instead)
+
 ### Example
 ```haxe
 using twny.Twny;
@@ -20,22 +25,25 @@ class Example {
         obj.x = 100;
         obj.y += 100; // relative transition
       })
-      .to(Quad.easeOut, obj.z = 1)
+      .to(Circ.easeIn, obj.z = 1)
       .then(
-        obj.tween(1.0)
-          .to(Quad.easeOut, obj.z = 2)
+        obj.tween(1.0).to(Quad.easeOut, obj.z = 2)
+      )
+      .then(
+        // will run in parallel with 'then' tween above
+        obj.tween(1.0).to(Quad.easeOut, ...)
       )
       .repeat()
       .start();
 
-    Twny.update(1.0); // 1st complete
-    trace(obj); // { x: 100.0, y: 100.0, z: 1 }
+    Twny.update(1.0); // 1st completed
+    trace(obj); // { x: 100, y: 100, z: 1 }
 
-    Twny.update(1.0); // 2nd complete
-    trace(obj); // { x: 100.0, y: 100.0, z: 2 }
+    Twny.update(1.0); // 2nd completed
+    trace(obj); // { x: 100, y: 100, z: 2 }
 
-    Twny.update(2.0);
-    trace(obj); // { x: 100.0, y: 200.0, z: 2 }
+    Twny.update(2.0); // both completed again
+    trace(obj); // { x: 100, y: 200, z: 2 }
   }
 }
 ```
