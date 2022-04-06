@@ -22,11 +22,28 @@ class Tween {
     public var elapsed(default, null) = 0.0;
     public var running(default, null) = false;
 
-    public var paused(get, null) = false;
-    public var repeatable(get, null) = false;
-    public var disposable(get, null) = false;
+    /**
+     * Just pause
+     */
+    @:isVar public var paused(get, set) = false;
+    /**
+     * if `true` full tween chain will be repeated after completion
+     */
+    @:isVar public var repeatable(get, set) = false;
+    /**
+     * if `true` full tween chain will be disposed after completion (if `repeatable == false`) or calling stop
+     */
+    @:isVar public var disposable(get, set) = false;
 
-    var completed(get, null):Bool;
+    /**
+     * `true` if current tween is completed (elapsed time == duration)
+     */
+    public var completed(get, never):Bool;
+
+    /**
+     * `true` if full tween chain is completed (elapsed time == duration)
+     */
+    public var fullyCompleted(get, never):Bool;
 
 
     public function new(duration:Float) {
@@ -68,7 +85,7 @@ class Tween {
                 }
                 else {
                     if (head != null) {
-                        if (head.completed) {
+                        if (head.fullyCompleted) {
                             if (repeatable) {
                                 head.setup();
                                 head.update(offset);
@@ -98,8 +115,11 @@ class Tween {
         return this;
     }
 
+    /**
+     * @param complete - if `true` updates each transition of each tween to the end
+     */
     public function stop(complete = false) {
-        if (complete && elapsed < duration) {
+        if (complete && !completed) {
             for (t in transitions) {
                 t.apply(1.0);
             }
@@ -177,11 +197,11 @@ class Tween {
         var single = easingAndProperties.length == 1;
         var easing = single ? macro hxease.Linear.easeNone : easingAndProperties[0];
         var properties = single ? easingAndProperties[0] : easingAndProperties[1];
-        return twny.internal.macro.TweenBuilder.transitions(self, easing, properties);
+        return twny.internal.macro.Builder.transitions(self, easing, properties);
     }
     #else
     public macro function to(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
-        return twny.internal.macro.TweenBuilder.transitions(self, easing, properties);
+        return twny.internal.macro.Builder.transitions(self, easing, properties);
     }
     #end
 
@@ -207,7 +227,7 @@ class Tween {
     }
 
 
-    function addTransition(t:Transition):Tween {
+    function transition(t:Transition):Tween {
         transitions.push(t);
         return this;
     }
@@ -224,24 +244,36 @@ class Tween {
         return head;
     }
 
-    function get_paused() {
+    inline function get_paused() {
         return head != null ? head.paused : paused;
     }
+    inline function set_paused(value) {
+        return head != null ? head.paused = value : this.paused = value;
+    }
 
-    function get_repeatable() {
+    inline function get_repeatable() {
         return head != null ? head.repeatable : repeatable;
     }
-
-    function get_disposable() {
-        return head != null ? head.disposable : disposable;
+    inline function set_repeatable(value) {
+        return head != null ? head.repeatable = value : this.repeatable = value;
     }
 
+    inline function get_disposable() {
+        return head != null ? head.disposable : disposable;
+    }
+    inline function set_disposable(value) {
+        return head != null ? head.disposable = value : this.disposable = value;
+    }
 
-    function get_completed() {
-        var ret = elapsed >= duration;
+    inline function get_completed() {
+        return elapsed >= duration;
+    }
+
+    function get_fullyCompleted() {
+        var ret = completed;
         if (next != null) {
             for (n in next) {
-                ret = ret && n.completed;
+                ret = ret && n.fullyCompleted;
             }
         }
         return ret;

@@ -8,7 +8,7 @@ import haxe.macro.Context;
 using haxe.macro.ExprTools;
 using Lambda;
 
-class TweenBuilder {
+class Builder {
 
 
     public static function transitions(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
@@ -68,7 +68,7 @@ class TweenBuilder {
 
         process(properties);
 
-        var ret = transitions.fold((e:Expr, r:Expr) -> macro $r.addTransition($e), self);
+        var ret = transitions.fold((e:Expr, r:Expr) -> macro $r.transition($e), self);
 
         return macro @:privateAccess $ret;
     }
