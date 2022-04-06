@@ -13,7 +13,7 @@ class Tween {
     var transitions = new Array<Transition>();
 
     var head(default, set):Tween;
-    var next:Tween;
+    var next:Array<Tween>;
 
     var stocked = false;
 
@@ -61,17 +61,21 @@ class Tween {
                 running = false;
 
                 if (next != null) {
-                    next.setup();
-                    next.update(offset);
+                    for (n in next) {
+                        n.setup();
+                        n.update(offset);
+                    }
                 }
                 else {
                     if (head != null) {
-                        if (repeatable) {
-                            head.setup();
-                            head.update(offset);
-                        }
-                        else if (disposable) {
-                            head.dispose();
+                        if (head.completed) {
+                            if (repeatable) {
+                                head.setup();
+                                head.update(offset);
+                            }
+                            else if (disposable) {
+                                head.dispose();
+                            }
                         }
                     }
                     else {
@@ -100,7 +104,9 @@ class Tween {
                 t.apply(1.0);
             }
             if (next != null) {
-                next.setup();
+                for (n in next) {
+                    n.setup();
+                }
             }
         }
 
@@ -108,7 +114,9 @@ class Tween {
         running = false;
 
         if (next != null) {
-            next.stop(complete);
+            for (n in next) {
+                n.stop(complete);
+            }
         }
         if (disposable) {
             dispose();
@@ -118,7 +126,9 @@ class Tween {
 
     public function dispose() {
         if (next != null) {
-            next.dispose();
+            for (n in next) {
+                n.dispose();
+            }
         }
         transitions.resize(0);
         head = null;
@@ -140,7 +150,10 @@ class Tween {
 
     public function then(tween:Tween) {
         tween.set_head(head != null ? head : this);
-        this.next = tween;
+        if (next == null) {
+            next = new Array<Tween>();
+        }
+        next.push(tween);
         return this;
     }
 
@@ -204,7 +217,9 @@ class Tween {
         head = tween;
         running = false;
         if (next != null) {
-            next.set_head(head);
+            for (n in next) {
+                n.set_head(head);
+            }
         }
         return head;
     }
@@ -221,8 +236,15 @@ class Tween {
         return head != null ? head.disposable : disposable;
     }
 
+
     function get_completed() {
-        return elapsed >= duration && (next != null ? next.completed : true);
+        var ret = elapsed >= duration;
+        if (next != null) {
+            for (n in next) {
+                ret = ret && n.completed;
+            }
+        }
+        return ret;
     }
 
 }
