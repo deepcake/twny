@@ -490,39 +490,39 @@ class Main extends buddy.SingleSuite {
                             });
                         });
 
-                        describe("then target stop and complete", {
-                            beforeEach(o.stop(true));
-                            it("should have correct value", {
-                                o.a.should.be(0);
-                                o.b.should.be(0);
-                                o.x.should.be(0);
-                                o.y.should.be(0);
-                            });
+                        // describe("then target stop and complete", {
+                        //     beforeEach(o.stop(true));
+                        //     it("should have correct value", {
+                        //         o.a.should.be(0);
+                        //         o.b.should.be(0);
+                        //         o.x.should.be(0);
+                        //         o.y.should.be(0);
+                        //     });
 
-                            describe("then update", {
-                                beforeEach(Twny.update(d));
-                                it("should have correct value", {
-                                    o.a.should.be(0);
-                                    o.b.should.be(0);
-                                    o.x.should.be(0);
-                                    o.y.should.be(0);
-                                });
-                            });
+                        //     describe("then update", {
+                        //         beforeEach(Twny.update(d));
+                        //         it("should have correct value", {
+                        //             o.a.should.be(0);
+                        //             o.b.should.be(0);
+                        //             o.x.should.be(0);
+                        //             o.y.should.be(0);
+                        //         });
+                        //     });
 
-                            describe("then target start", {
-                                beforeEach(o.start());
+                        //     describe("then target start", {
+                        //         beforeEach(o.start());
 
-                                describe("then update to 1st", {
-                                    beforeEach(Twny.update(d));
-                                    it("should have correct value", {
-                                        o.a.should.be(100);
-                                        o.b.should.be(50);
-                                        o.x.should.be(0);
-                                        o.y.should.be(0);
-                                    });
-                                });
-                            });
-                        });
+                        //         describe("then update to 1st", {
+                        //             beforeEach(Twny.update(d));
+                        //             it("should have correct value", {
+                        //                 o.a.should.be(100);
+                        //                 o.b.should.be(50);
+                        //                 o.x.should.be(0);
+                        //                 o.y.should.be(0);
+                        //             });
+                        //         });
+                        //     });
+                        // });
 
                         describe("then target dispose", {
                             beforeEach(o.dispose());
