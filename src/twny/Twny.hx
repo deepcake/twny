@@ -66,11 +66,12 @@ class Twny {
         }
         running.resize(0);
 
-        for (targetTweens in targets) {
-            for (tween in targetTweens) {
+        [ for (tweens in targets) tweens ].iter(tweens -> {
+            for (tween in tweens) {
                 tween.dispose();
             }
-        }
+        });
+
         targets.clear();
     }
 
