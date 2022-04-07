@@ -70,7 +70,7 @@ class Builder {
 
         var ret = transitions.fold((e:Expr, r:Expr) -> macro $r.transition($e), self);
 
-        return macro @:privateAccess $ret;
+        return ret;
     }
 
 }

@@ -254,6 +254,13 @@ class Tween {
     #end
 
 
+    @:noCompletion
+    public function transition(t:Transition):Tween {
+        transitions.push(t);
+        return this;
+    }
+
+
     function setup() {
         stock();
         elapsed = 0.0;
@@ -275,12 +282,6 @@ class Tween {
 
     function unstock() {
         stocked = false;
-    }
-
-
-    function transition(t:Transition):Tween {
-        transitions.push(t);
-        return this;
     }
 
 

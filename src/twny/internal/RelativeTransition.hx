@@ -9,7 +9,8 @@ class RelativeTransition extends Transition {
     var getFr:Void->Float;
 
 
-    function new(easing:IEasing, getFr:Void->Float, getTo:Void->Float, set:(value:Float)->Void) {
+    @:noCompletion
+    public function new(easing:IEasing, getFr:Void->Float, getTo:Void->Float, set:(value:Float)->Void) {
         this.easing = easing;
         this.getFr = getFr;
         this.getTo = getTo;

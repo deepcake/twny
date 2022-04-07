@@ -8,11 +8,14 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
 ### Wip
 
 ### Features Achieved
- - Multiple tween chaining with different duration!
+ - Multiple tween chaining!
+ - Repeating whole tween chain without oncomplete callback hack!
  - Parallel transitions with different easing!
+ - Access to nested variabels at any depth!
  - Macro-based, no reflection (but a lot of macro-generated functions instead)
+ - Some callbacks and playback control!
 
-### Example
+### How It Looks Like
 ```haxe
 using twny.Twny;
 
