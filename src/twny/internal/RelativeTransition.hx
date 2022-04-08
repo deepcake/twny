@@ -17,7 +17,7 @@ class RelativeTransition extends Transition {
         this.set = set;
     }
 
-    override function setup() {
+    function setup() {
         from = getFr();
         to = getTo();
     }

@@ -16,7 +16,7 @@ class DefaultTransition extends Transition {
         this.set = set;
     }
 
-    override function setup() {
+    function setup() {
         from = getFr();
     }
 

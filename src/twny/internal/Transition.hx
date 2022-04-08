@@ -2,7 +2,8 @@ package twny.internal;
 
 import hxease.IEasing;
 
-class Transition {
+abstract class Transition {
+
 
     var easing:IEasing;
 
@@ -12,12 +13,12 @@ class Transition {
     var set:(value:Float)->Void;
 
 
-    public function setup() {
-        // nothing here
-    }
+    abstract function setup():Void;
 
-    public function apply(k:Float) {
-        set(k < 1.0 ? from + (to - from) * easing.calculate(k) : to);
+
+    function apply(k:Float) {
+        var value = k < 1.0 ? from + (to - from) * easing.calculate(k) : to;
+        set(value);
     }
 
 }
