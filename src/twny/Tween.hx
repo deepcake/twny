@@ -12,7 +12,7 @@ class Tween {
 
     var transitions = new Array<Transition>();
 
-    var head(default, set):Tween;
+    var head:Tween;
     var next:Array<Tween>;
 
     var stocked = false;
@@ -31,13 +31,13 @@ class Tween {
      */
     @:isVar public var paused(get, set) = false;
     /**
-     * if `true` full tween chain will be repeated after completion
+     * If `true` full tween chain will be repeated after completion
      */
     @:isVar public var repeatable(get, set) = false;
     /**
-     * if `true` full tween chain will be disposed after completion (if `repeatable == false`) or calling stop
+     * If `true` full tween chain will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
      */
-    @:isVar public var disposable(get, set) = false;
+    @:isVar public var disposable(get, set) = true;
 
     /**
      * `true` if current tween is completed (elapsed time == duration)
@@ -45,17 +45,22 @@ class Tween {
     public var completed(get, never):Bool;
 
     /**
-     * `true` if full tween chain is completed (elapsed time == duration)
+     * `true` if full tween chain is completed (elapsed time of each tween in chain == duration)
      */
     public var fullyCompleted(get, never):Bool;
 
 
-    public function new(duration:Float) {
+    /**
+     * @param duration duration of current tween
+     * @param once if `true` full tween chain will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
+     */
+    public function new(duration:Float, once = true) {
         this.duration = duration;
+        this.disposable = once;
     }
 
-    public function once() {
-        disposable = true;
+    public function reuse() {
+        disposable = false;
         return this;
     }
 
@@ -128,7 +133,7 @@ class Tween {
     }
 
     /**
-     * @param complete - if `true` updates each transition of each tween to the end
+     * @param complete if `true` will update each transition of each nested tween to the end
      */
     public function stop(complete = false) {
         if (complete && !completed) {
@@ -223,7 +228,12 @@ class Tween {
      * @param tween `Tween`
      */
     public function then(tween:Tween) {
-        tween.set_head(head != null ? head : this);
+        if (tween.head != null) {
+            if (tween.head.next != null) {
+                tween.head.next.remove(tween);
+            }
+        }
+        tween.setHead(head != null ? head : this);
         if (next == null) {
             next = new Array<Tween>();
         }
@@ -267,6 +277,18 @@ class Tween {
     }
 
 
+    function setHead(tween:Tween) {
+        head = tween;
+        elapsed = 0.0;
+        running = false;
+        if (next != null) {
+            for (n in next) {
+                n.setHead(head);
+            }
+        }
+    }
+
+
     function setup() {
         stock();
         elapsed = 0.0;
@@ -291,35 +313,24 @@ class Tween {
     }
 
 
-    function set_head(tween:Tween) {
-        head = tween;
-        running = false;
-        if (next != null) {
-            for (n in next) {
-                n.set_head(head);
-            }
-        }
-        return head;
-    }
-
-    inline function get_paused() {
+    function get_paused() {
         return head != null ? head.paused : paused;
     }
-    inline function set_paused(value) {
+    function set_paused(value) {
         return head != null ? head.paused = value : this.paused = value;
     }
 
-    inline function get_repeatable() {
+    function get_repeatable() {
         return head != null ? head.repeatable : repeatable;
     }
-    inline function set_repeatable(value) {
+    function set_repeatable(value) {
         return head != null ? head.repeatable = value : this.repeatable = value;
     }
 
-    inline function get_disposable() {
+    function get_disposable() {
         return head != null ? head.disposable : disposable;
     }
-    inline function set_disposable(value) {
+    function set_disposable(value) {
         return head != null ? head.disposable = value : this.disposable = value;
     }
 

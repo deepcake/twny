@@ -15,7 +15,7 @@ class Main extends buddy.SingleSuite {
                     o = {
                         x: 0.
                     };
-                    t0 = new Tween(d)
+                    t0 = new Tween(d, false)
                         .to(Linear.easeNone, o.x = 100)
                         .then(
                             t1 = new Tween(d)
@@ -131,7 +131,7 @@ class Main extends buddy.SingleSuite {
                 });
 
                 describe("then make tween once and start", {
-                    beforeEach(t0.once().start());
+                    beforeEach({t0.disposable = true; t0.start();});
 
                     describe("then update to 1st half", {
                         beforeEach(Twny.update(d / 2));
@@ -216,6 +216,7 @@ class Main extends buddy.SingleSuite {
                         .then(
                             t1 = o.tween(d).to(Linear.easeNone, o.x = 300)
                         )
+                        .reuse()
                         .repeat();
 
                     t2 = o.tween(d)
@@ -223,6 +224,7 @@ class Main extends buddy.SingleSuite {
                         .then(
                             t3 = o.tween(d).to(Linear.easeNone, o.y = -300)
                         )
+                        .reuse()
                         .repeat();
                 });
 
@@ -379,6 +381,7 @@ class Main extends buddy.SingleSuite {
                         .then(
                             o.tween(d * 2).to(Linear.easeNone, o.b = 100)
                         )
+                        .reuse()
                         .repeat();
                 });
 
