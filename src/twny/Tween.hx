@@ -31,11 +31,11 @@ class Tween {
      */
     @:isVar public var paused(get, set) = false;
     /**
-     * If `true` full tween chain will be repeated after completion
+     * If `true` the whole tween chain will be started from the beginning after completion
      */
     @:isVar public var repeatable(get, set) = false;
     /**
-     * If `true` full tween chain will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
+     * If `true` the whole tween chain will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
      */
     @:isVar public var disposable(get, set) = true;
 
@@ -52,18 +52,24 @@ class Tween {
 
     /**
      * @param duration duration of current tween
-     * @param once if `true` full tween chain will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
+     * @param once if `true` the whole tween chain will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
      */
-    public function new(duration:Float, once = true) {
+    public function new(duration:Float, once:Bool = true) {
         this.duration = duration;
         this.disposable = once;
     }
 
+    /**
+     * Makes tween chain reusable (`disposable = false`)
+     */
     public function reuse() {
         disposable = false;
         return this;
     }
 
+    /**
+     * Makes tween chain repeatable (whole tween chain will be started from the beginning after completion)
+     */
     public function repeat() {
         repeatable = true;
         return this;
@@ -128,14 +134,36 @@ class Tween {
 
 
     public function start() {
-        setup();
+        if (head != null) {
+            head.rootStart();
+        }
+        else {
+            this.rootStart();
+        }
         return this;
+    }
+
+    inline function rootStart() {
+        setup();
     }
 
     /**
      * @param complete if `true` will update each transition of each nested tween to the end
      */
     public function stop(complete = false) {
+        if (head != null) {
+            head.rootStop(complete);
+        }
+        else {
+            this.rootStop(complete);
+        }
+        if (disposable) {
+            dispose();
+        }
+        return this;
+    }
+
+    function rootStop(complete:Bool) {
         if (complete && !completed) {
             for (t in transitions) {
                 t.apply(1.0);
@@ -146,25 +174,29 @@ class Tween {
                 }
             }
         }
-
         elapsed = duration;
         running = false;
-
         if (next != null) {
             for (n in next) {
-                n.stop(complete);
+                n.rootStop(complete);
             }
         }
-        if (disposable) {
-            dispose();
-        }
-        return this;
     }
 
+
     public function dispose() {
+        if (head != null) {
+            head.rootDispose();
+        }
+        else {
+            this.rootDispose();
+        }
+    }
+
+    function rootDispose() {
         if (next != null) {
             for (n in next) {
-                n.dispose();
+                n.rootDispose();
             }
         }
         for (t in transitions) {
@@ -181,7 +213,7 @@ class Tween {
     }
 
     /**
-     * Pauses tween running with ability of resuming
+     * Pauses the whole tween chain with ability of resuming
      */
     public function pause() {
         paused = true;
@@ -189,7 +221,7 @@ class Tween {
     }
 
     /**
-     * Resumes tween running after it has been paused
+     * Resumes the whole tween chain after it has been paused
      */
     public function resume() {
         paused = false;
@@ -224,7 +256,7 @@ class Tween {
     }
 
     /**
-     * Adds a nested tween that will start when this tween ends
+     * Adds a nested tween that will be started when _this_ tween ends
      * @param tween `Tween`
      */
     public function then(tween:Tween) {
@@ -239,6 +271,17 @@ class Tween {
         }
         next.push(tween);
         return this;
+    }
+
+    function setHead(tween:Tween) {
+        head = tween;
+        elapsed = 0.0;
+        running = false;
+        if (next != null) {
+            for (n in next) {
+                n.setHead(head);
+            }
+        }
     }
 
 
@@ -274,18 +317,6 @@ class Tween {
     public function transition(t:Transition):Tween {
         transitions.push(t);
         return this;
-    }
-
-
-    function setHead(tween:Tween) {
-        head = tween;
-        elapsed = 0.0;
-        running = false;
-        if (next != null) {
-            for (n in next) {
-                n.setHead(head);
-            }
-        }
     }
 
 
