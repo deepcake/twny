@@ -22,4 +22,11 @@ class RelativeTransition extends Transition {
         to = getTo();
     }
 
+    function dispose() {
+        easing = null;
+        getFr = null;
+        getTo = null;
+        set = null;
+    }
+
 }

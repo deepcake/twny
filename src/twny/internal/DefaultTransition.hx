@@ -20,4 +20,10 @@ class DefaultTransition extends Transition {
         from = getFr();
     }
 
+    function dispose() {
+        easing = null;
+        getFr = null;
+        set = null;
+    }
+
 }

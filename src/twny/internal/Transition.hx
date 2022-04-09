@@ -15,6 +15,8 @@ abstract class Transition {
 
     abstract function setup():Void;
 
+    abstract function dispose():Void;
+
 
     function apply(k:Float) {
         var value = k < 1.0 ? from + (to - from) * easing.calculate(k) : to;

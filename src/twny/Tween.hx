@@ -162,9 +162,15 @@ class Tween {
                 n.dispose();
             }
         }
+        for (t in transitions) {
+            t.dispose();
+        }
         transitions.resize(0);
         head = null;
         next = null;
+        onStartCb = null;
+        onUpdateCb = null;
+        onCompleteCb = null;
         elapsed = 0.0;
         running = false;
     }
