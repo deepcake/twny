@@ -1,7 +1,5 @@
 package twny.internal;
 
-import hxease.IEasing;
-
 class DefaultTransition extends Transition {
 
 
@@ -9,7 +7,7 @@ class DefaultTransition extends Transition {
 
 
     @:noCompletion
-    public function new(easing:IEasing, getFr:Void->Float, to:Float, set:(value:Float)->Void) {
+    public function new(easing:Float->Float, getFr:Void->Float, to:Float, set:Float->Void) {
         this.easing = easing;
         this.getFr = getFr;
         this.to = to;

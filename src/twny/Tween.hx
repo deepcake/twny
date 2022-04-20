@@ -265,7 +265,9 @@ class Tween {
                 tween.head.next.remove(tween);
             }
         }
+
         tween.setHead(head != null ? head : this);
+
         if (next == null) {
             next = new Array<Tween>();
         }
@@ -295,7 +297,7 @@ class Tween {
      * For example, `obj.x = 5` will become a transition with var `from = obj.x` and var `to = 5`.  
      * It is also possible to make a relative transition by passing a short assingment `obj.y += 5`. 
      * So on every start var `to` will be initialized as `obj.y + 5` instead of simple `5`. It can be useful for reuse.
-     * @param easing hxease.IEasing
+     * @param easing `Float->Float`
      * @param properties function or just block with expressions  
      */
     #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
@@ -306,7 +308,7 @@ class Tween {
         return twny.internal.macro.Builder.transitions(self, easing, properties);
     }
     #else
-    public macro function to(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
+    public macro function to(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
         return twny.internal.macro.Builder.transitions(self, easing, properties);
     }
     #end

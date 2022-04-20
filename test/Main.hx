@@ -1,5 +1,5 @@
 import twny.Tween;
-import hxease.Linear;
+import twny.easing.*;
 
 using buddy.Should;
 using twny.Twny;

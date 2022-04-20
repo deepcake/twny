@@ -1,16 +1,14 @@
 package twny.internal;
 
-import hxease.IEasing;
-
 abstract class Transition {
 
 
-    var easing:IEasing;
+    var easing:Float->Float;
 
     var from:Float;
     var to:Float;
 
-    var set:(value:Float)->Void;
+    var set:Float->Void;
 
 
     abstract function setup():Void;
@@ -19,7 +17,7 @@ abstract class Transition {
 
 
     function apply(k:Float) {
-        var value = k < 1.0 ? from + (to - from) * easing.calculate(k) : to;
+        var value = k < 1.0 ? from + (to - from) * easing(k) : to;
         set(value);
     }
 

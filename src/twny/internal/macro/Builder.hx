@@ -11,7 +11,7 @@ using Lambda;
 class Builder {
 
 
-    public static function transitions(self:ExprOf<Tween>, easing:ExprOf<hxease.IEasing>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
+    public static function transitions(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
         var transitions = [];
 
         function fail(expr:Expr) {
