@@ -17,11 +17,9 @@ class Builder {
         function fail(expr:Expr) {
             var msg = 'Expression `${expr.toString()}` is not allowed! Assignment (like `a.b = c` or `a.b += c`) is required instead!';
 
-            // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
-            #if twny_autocompletion_hack
+            #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
             msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Do not forget to fix it!';
             Context.warning(msg, expr.pos);
-
             var error = 'This is errored transition of expr `${expr.toString()}`!';
             var tr = macro new twny.internal.DefaultTransition($easing, () -> throw $v{error}, 0.0, v -> $expr);
             transitions.push(tr);

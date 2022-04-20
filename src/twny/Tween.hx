@@ -37,7 +37,7 @@ class Tween {
     /**
      * If `true` the whole tween chain will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
      */
-    @:isVar public var disposable(get, set) = true;
+    @:isVar public var autodispose(get, set) = true;
 
     /**
      * `true` if current tween is completed (elapsed time == duration)
@@ -45,7 +45,7 @@ class Tween {
     public var completed(get, never):Bool;
 
     /**
-     * `true` if full tween chain is completed (elapsed time of each tween in chain == duration)
+     * `true` if the whole tween chain is completed (elapsed time of each tween in chain == duration)
      */
     public var fullyCompleted(get, never):Bool;
 
@@ -56,14 +56,14 @@ class Tween {
      */
     public function new(duration:Float, once:Bool = true) {
         this.duration = duration;
-        this.disposable = once;
+        this.autodispose = once;
     }
 
     /**
-     * Makes tween chain reusable (`disposable = false`)
+     * Makes tween chain reusable (`autodispose = false`)
      */
     public function reuse() {
-        disposable = false;
+        autodispose = false;
         return this;
     }
 
@@ -113,7 +113,7 @@ class Tween {
                                 head.setup();
                                 head.update(offset);
                             }
-                            else if (disposable) {
+                            else if (autodispose) {
                                 head.dispose();
                             }
                         }
@@ -123,7 +123,7 @@ class Tween {
                             this.setup();
                             this.update(offset);
                         }
-                        else if (disposable) {
+                        else if (autodispose) {
                             this.dispose();
                         }
                     }
@@ -157,7 +157,7 @@ class Tween {
         else {
             this.rootStop(complete);
         }
-        if (disposable) {
+        if (autodispose) {
             dispose();
         }
         return this;
@@ -298,8 +298,7 @@ class Tween {
      * @param easing hxease.IEasing
      * @param properties function or just block with expressions  
      */
-    // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
-    #if twny_autocompletion_hack
+    #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
         var single = easingAndProperties.length == 1;
         var easing = single ? macro hxease.Linear.easeNone : easingAndProperties[0];
@@ -358,11 +357,11 @@ class Tween {
         return head != null ? head.repeatable = value : this.repeatable = value;
     }
 
-    function get_disposable() {
-        return head != null ? head.disposable : disposable;
+    function get_autodispose() {
+        return head != null ? head.autodispose : autodispose;
     }
-    function set_disposable(value) {
-        return head != null ? head.disposable = value : this.disposable = value;
+    function set_autodispose(value) {
+        return head != null ? head.autodispose = value : this.autodispose = value;
     }
 
     inline function get_completed() {

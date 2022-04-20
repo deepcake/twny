@@ -131,7 +131,7 @@ class Main extends buddy.SingleSuite {
                 });
 
                 describe("then make tween once and start", {
-                    beforeEach({t0.disposable = true; t0.start();});
+                    beforeEach({t0.autodispose = true; t0.start();});
 
                     describe("then update to 1st half", {
                         beforeEach(Twny.update(d / 2));
