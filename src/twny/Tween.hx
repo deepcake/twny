@@ -303,7 +303,7 @@ class Tween {
     #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
         var single = easingAndProperties.length == 1;
-        var easing = single ? macro hxease.Linear.easeNone : easingAndProperties[0];
+        var easing = single ? macro twny.easing.Linear.easeNone : easingAndProperties[0];
         var properties = single ? easingAndProperties[0] : easingAndProperties[1];
         return twny.internal.macro.Builder.transitions(self, easing, properties);
     }
