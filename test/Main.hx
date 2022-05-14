@@ -163,6 +163,7 @@ class Main extends buddy.SingleSuite {
                 });
             });
 
+
             describe("when init relative transition", {
                 var d = 10, o, t0, t1;
                 beforeEach({
@@ -202,6 +203,48 @@ class Main extends buddy.SingleSuite {
                     });
                 });
             });
+
+
+            describe("when init swapped transition", {
+                var d = 10, o, t0, t1;
+                beforeEach({
+                    o = {
+                        x: 100.
+                    };
+                    t0 = new Tween(d)
+                        .from(Linear.easeNone, o.x = 0)
+                        .then(
+                            t1 = new Tween(d)
+                                .from(Linear.easeNone, o.x = 200)
+                        )
+                        .repeat();
+                });
+
+                describe("then start", {
+                    beforeEach(t0.start());
+
+                    describe("then update to 1st 1/4", {
+                        beforeEach(Twny.update(d / 4));
+                        it("should have correct value", o.x.should.be(25));
+
+                        describe("then update to 2nd 1/4", {
+                            beforeEach(Twny.update(d));
+                            it("should have correct value", o.x.should.be(175));
+
+                            describe("then update with overhead to 1st 1/4", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(25));
+
+                                describe("then update with overhead to 2nd 1/4", {
+                                    beforeEach(Twny.update(d));
+                                    it("should have correct value", o.x.should.be(175));
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
 
             describe("when init target tween", {
                 var d = 10, o, t0, t1, t2, t3;

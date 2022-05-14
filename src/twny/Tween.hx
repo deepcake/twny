@@ -300,18 +300,31 @@ class Tween {
      * @param easing `Float->Float`
      * @param properties function or just block with expressions  
      */
-    #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
+#if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
         var single = easingAndProperties.length == 1;
         var easing = single ? macro twny.easing.Linear.easeNone : easingAndProperties[0];
         var properties = single ? easingAndProperties[0] : easingAndProperties[1];
         return twny.internal.macro.Builder.transitions(self, easing, properties);
     }
-    #else
+#else
     public macro function to(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
         return twny.internal.macro.Builder.transitions(self, easing, properties);
     }
-    #end
+#end
+
+#if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
+    public macro function from(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
+        var single = easingAndProperties.length == 1;
+        var easing = single ? macro twny.easing.Linear.easeNone : easingAndProperties[0];
+        var properties = single ? easingAndProperties[0] : easingAndProperties[1];
+        return twny.internal.macro.Builder.transitions(self, easing, properties, true);
+    }
+#else
+    public macro function from(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
+        return twny.internal.macro.Builder.transitions(self, easing, properties, true);
+    }
+#end
 
 
     @:noCompletion

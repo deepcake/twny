@@ -11,21 +11,20 @@ using Lambda;
 class Builder {
 
 
-    public static function transitions(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>):ExprOf<Tween> {
+    public static function transitions(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>, swapFromTo = false):ExprOf<Tween> {
         var transitions = [];
 
         function fail(expr:Expr) {
             var msg = 'Expression `${expr.toString()}` is not allowed! Assignment (like `a.b = c` or `a.b += c`) is required instead!';
-
-            #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
+#if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/7699
             msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Do not forget to fix it!';
             Context.warning(msg, expr.pos);
             var error = 'This is errored transition of expr `${expr.toString()}`!';
-            var tr = macro new twny.internal.Transition($easing, () -> throw $v{error}, 0.0, v -> $expr);
-            transitions.push(tr);
-            #else
+            return macro new twny.internal.Transition($easing, () -> throw $v{error}, 0.0, v -> $expr);
+#else
             Context.error(msg, expr.pos);
-            #end
+            return null;
+#end
         }
 
         function process(expr:Expr) {
@@ -37,30 +36,34 @@ class Builder {
                     exprs.iter(process);
                 }
                 case EBinop(op, e1, e2): {
-                    var gf = macro function():Float return $e1;
-                    var set = macro function(v:Float) $e1 = v;
-                    switch op {
+                    var set = macro function(v) $e1 = v;
+                    var gfr = macro function() return $e1;
+                    var gto = switch op {
+                        // a = x
                         case OpAssign: {
-                            var gt = macro function():Float return $e2;
-                            var tr = macro new twny.internal.Transition($easing, $gf, $gt, $set);
-                            transitions.push(tr);
+                            macro function() return $e2;
                         }
+                        // a += x, a -= x, a *= x
                         case OpAssignOp(aop): {
                             var to = {
                                 expr: EBinop(aop, e1, e2),
                                 pos: expr.pos
                             }
-                            var gt = macro function():Float return $to;
-                            var tr = macro new twny.internal.Transition($easing, $gf, $gt, $set);
-                            transitions.push(tr);
+                            macro function() return $to;
                         }
                         case _: {
                             fail(expr);
                         }
                     }
+                    var tr = swapFromTo ?
+                        macro new twny.internal.Transition($easing, $gto, $gfr, $set) :
+                        macro new twny.internal.Transition($easing, $gfr, $gto, $set);
+
+                    transitions.push(tr);
                 }
                 case _: {
-                    fail(expr);
+                    var tr = fail(expr);
+                    transitions.push(tr);
                 }
             }
         }
