@@ -21,7 +21,7 @@ class Builder {
             msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Do not forget to fix it!';
             Context.warning(msg, expr.pos);
             var error = 'This is errored transition of expr `${expr.toString()}`!';
-            var tr = macro new twny.internal.DefaultTransition($easing, () -> throw $v{error}, 0.0, v -> $expr);
+            var tr = macro new twny.internal.Transition($easing, () -> throw $v{error}, 0.0, v -> $expr);
             transitions.push(tr);
             #else
             Context.error(msg, expr.pos);
@@ -37,11 +37,12 @@ class Builder {
                     exprs.iter(process);
                 }
                 case EBinop(op, e1, e2): {
-                    var getFr = macro function():Float return $e1;
+                    var gf = macro function():Float return $e1;
                     var set = macro function(v:Float) $e1 = v;
                     switch op {
                         case OpAssign: {
-                            var tr = macro new twny.internal.DefaultTransition($easing, $getFr, $e2, $set);
+                            var gt = macro function():Float return $e2;
+                            var tr = macro new twny.internal.Transition($easing, $gf, $gt, $set);
                             transitions.push(tr);
                         }
                         case OpAssignOp(aop): {
@@ -49,8 +50,8 @@ class Builder {
                                 expr: EBinop(aop, e1, e2),
                                 pos: expr.pos
                             }
-                            var getTo = macro function():Float return $to;
-                            var tr = macro new twny.internal.RelativeTransition($easing, $getFr, $getTo, $set);
+                            var gt = macro function():Float return $to;
+                            var tr = macro new twny.internal.Transition($easing, $gf, $gt, $set);
                             transitions.push(tr);
                         }
                         case _: {
