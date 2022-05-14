@@ -11,7 +11,7 @@ using Lambda;
 class Builder {
 
 
-    public static function transitions(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>, swapFromTo = false):ExprOf<Tween> {
+    public static function transitions(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>, swapToFrom = false):ExprOf<Tween> {
         var transitions = [];
 
         function fail(expr:Expr) {
@@ -20,7 +20,7 @@ class Builder {
             msg += ' But due `twny_autocompletion_hack` an errored transition will be created anyway to achive autocompletion! Do not forget to fix it!';
             Context.warning(msg, expr.pos);
             var error = 'This is errored transition of expr `${expr.toString()}`!';
-            return macro new twny.internal.Transition($easing, () -> throw $v{error}, 0.0, v -> $expr);
+            return macro new twny.internal.FixedToTransition($easing, () -> throw $v{error}, 0.0, v -> $expr);
 #else
             Context.error(msg, expr.pos);
             return null;
@@ -37,11 +37,13 @@ class Builder {
                 }
                 case EBinop(op, e1, e2): {
                     var set = macro function(v) $e1 = v;
-                    var gfr = macro function() return $e1;
-                    var gto = switch op {
+                    var getf = macro function() return $e1;
+                    var tr = switch op {
                         // a = x
                         case OpAssign: {
-                            macro function() return $e2;
+                            swapToFrom ?
+                                macro new twny.internal.FixedFromTransition($easing, $e2, $getf, $set) :
+                                macro new twny.internal.FixedToTransition($easing, $getf, $e2, $set);
                         }
                         // a += x, a -= x, a *= x
                         case OpAssignOp(aop): {
@@ -49,16 +51,15 @@ class Builder {
                                 expr: EBinop(aop, e1, e2),
                                 pos: expr.pos
                             }
-                            macro function() return $to;
+                            var gett = macro function() return $to;
+                            swapToFrom ?
+                                macro new twny.internal.RelativeTransition($easing, $gett, $getf, $set) :
+                                macro new twny.internal.RelativeTransition($easing, $getf, $gett, $set);
                         }
                         case _: {
                             fail(expr);
                         }
                     }
-                    var tr = swapFromTo ?
-                        macro new twny.internal.Transition($easing, $gto, $gfr, $set) :
-                        macro new twny.internal.Transition($easing, $gfr, $gto, $set);
-
                     transitions.push(tr);
                 }
                 case _: {
