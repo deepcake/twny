@@ -8,12 +8,58 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
 ### Wip
 
 ### Features Achieved
- - Multiple tween chaining!
- - Repeating whole tween chain without oncomplete callback hack!
- - Parallel transitions with different easing!
- - Access to nested variabels at any depth!
- - Macro-based, no reflection (but a lot of macro-generated functions instead)
- - Some callbacks and playback control!
+ - Parallel transitions with different easings!  
+ ```haxe
+  tween(1.0)
+    .to(Quad.easeIn, spr.x = 100)
+    .to(Circ.easeOut, spr.y = 50)
+    .start();
+  Twny.update(1.0); // spr.x == 100, spr.y = 50
+ ```
+ - Access to nested variables at any depth with autocompletion!  
+ _(see [**also**](#also) about autocompletion)_
+ ```haxe
+  tween(1.0)
+    .to(Quad.easeIn, {
+      spr.pos.x = 100;
+      spr.pos.y = 150;
+      spr.velocity = 20;
+    })
+ ```
+ - Tween chaining and branching!  
+ ```haxe
+  tween(0)
+    .then(
+      tween(1.0).to(...)
+    )
+    .then(
+      tween(3.0).to(...) // will run in parallel with 'then' tween above
+        .then(...)
+        .then(...)
+    )
+ ```
+ - Repeating whole tween chain without oncomplete callback hack!  
+ ```haxe
+  tween(.5).to(Quad.easeIn, spr.x = 100)
+    .then(
+      tween(.5).to(Quad.easeIn, spr.x = 200)
+    )
+    .repeat()
+    .start();
+  Twny.update(.5); // spr.x == 100
+  Twny.update(.5); // spr.x == 200
+  Twny.update(.5); // spr.x == 100
+  Twny.update(.5); // spr.x == 200
+ ```
+ - Some callbacks and playback control!  
+ ```haxe
+  var t = tween(1.0).to(...);
+  t.start();
+  t.pause();
+  t.resume();
+  t.stop();
+ ```
+ - Macro-based, no reflection (but a lot of macro-generated functions instead)  
 
 ### How It Looks Like
 ```haxe
@@ -30,28 +76,19 @@ class Example {
       })
       .to(Circ.easeIn, obj.z = 1)
       .then(
-        obj.tween(1.0).to(Quad.easeOut, obj.z = 2)
-      )
-      .then(
-        // will run in parallel with 'then' tween above
-        obj.tween(1.0).to(Quad.easeOut, ...)
+        obj.tween(1.0).to(Circ.easeOut, obj.z = 2)
       )
       .repeat()
       .start();
 
-    Twny.update(1.0); // 1st completed
-    trace(obj); // { x: 100, y: 100, z: 1 }
-
-    Twny.update(1.0); // 2nd completed
-    trace(obj); // { x: 100, y: 100, z: 2 }
-
-    Twny.update(2.0); // both completed again
-    trace(obj); // { x: 100, y: 200, z: 2 }
+    Twny.update(1.0); // { x: 100, y: 100, z: 1 }
+    Twny.update(1.0); // { x: 100, y: 100, z: 2 }
+    Twny.update(1.0); // { x: 100, y: 200, z: 1 }
   }
 }
 ```
 
 ### Also
-`-D twny_autocompletion_hack` - ugly hack to achive autocompletion for macro func args. See issues:
+`-D twny_autocompletion_hack` - ugly hack to achive autocompletion for macro func args. See issues:  
 https://github.com/HaxeFoundation/haxe/issues/7699  
 https://github.com/HaxeFoundation/haxe/issues/9421  
