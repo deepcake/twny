@@ -9,8 +9,9 @@ using Lambda;
 class Twny {
 
 
-    static var targets = new ObjectMap<{}, List<Tween>>();
-    static var running = new Array<Tween>();
+    static var targetToTweenList = new ObjectMap<{}, List<Tween>>();
+
+    static var updating = new Array<Tween>();
 
 
     overload extern inline public static function tween<T:{}>(target:T, duration:Float) {
@@ -44,14 +45,14 @@ class Twny {
 
 
     public static function update(dt:Float) {
-        var l = running.length;
+        var l = updating.length;
         var i = 0;
         while (i < l) {
-            var tween = running[i];
+            var tween = updating[i];
             tween.update(dt);
             if (!tween.running) {
                 tween.unstock();
-                running.splice(i, 1);
+                updating.splice(i, 1);
                 l--;
             }
             else {
@@ -61,51 +62,51 @@ class Twny {
     }
 
     public static function reset() {
-        for (tween in running) {
+        for (tween in updating) {
             tween.dispose();
         }
-        running.resize(0);
+        updating.resize(0);
 
-        [ for (tweens in targets) tweens ].iter(tweens -> {
-            for (tween in tweens) {
+        [ for (list in targetToTweenList) list ].iter(list -> {
+            for (tween in list) {
                 tween.dispose();
             }
         });
-
-        targets.clear();
+        targetToTweenList.clear();
     }
 
 
     static inline function addTween(tween:Tween) {
-        running.push(tween);
+        updating.push(tween);
     }
 
+
     static inline function addTargetTween(target:{}, tween:Tween) {
-        var targetTweens = targets.get(target);
-        if (targetTweens == null) {
-            targetTweens = new List<Tween>();
-            targets.set(target, targetTweens);
+        var list = targetToTweenList.get(target);
+        if (list == null) {
+            list = new List<Tween>();
+            targetToTweenList.set(target, list);
         }
-        if (!targetTweens.has(tween)) {
-            targetTweens.add(tween);
-        }
+        list.add(tween);
     }
 
     static inline function removeTargetTween(target:{}, tween:Tween) {
-        var targetTweens = targets.get(target);
-        if (targetTweens != null) {
-            targetTweens.remove(tween);
-            if (targetTweens.length == 0) {
-                targets.remove(target);
+        var list = targetToTweenList.get(target);
+        if (list != null) {
+            list.remove(tween);
+            if (list.length == 0) {
+                targetToTweenList.remove(target);
             }
         }
     }
 
     static inline function forEachTargetTween(target:{}, f:Tween->Void) {
-        var targetTweens = targets.get(target);
-        if (targetTweens != null) {
-            for (tween in targetTweens) {
-                f(tween);
+        var list = targetToTweenList.get(target);
+        if (list != null) {
+            for (tween in list) {
+                if (tween.head == null) {
+                    f(tween);
+                }
             }
         }
     }

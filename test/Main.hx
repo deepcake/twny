@@ -275,7 +275,7 @@ class Main extends buddy.SingleSuite {
                     beforeEach(t0.start());
                     beforeEach(t2.start());
                     it("should create target store", {
-                        @:privateAccess Twny.targets.get(o).should.not.be(null);
+                        @:privateAccess Twny.targetToTweenList.get(o).should.not.be(null);
                     });
 
                     describe("then update to 1st half", {
@@ -360,7 +360,7 @@ class Main extends buddy.SingleSuite {
                         describe("then target dispose", {
                             beforeEach(o.dispose());
                             it("should remove target store", {
-                                @:privateAccess Twny.targets.get(o).should.be(null);
+                                @:privateAccess Twny.targetToTweenList.get(o).should.be(null);
                             });
                             it("should be disposed", @:privateAccess {
                                 t0.head.should.be(null);
@@ -573,7 +573,7 @@ class Main extends buddy.SingleSuite {
                         describe("then target dispose", {
                             beforeEach(o.dispose());
                             it("should remove target store", {
-                                @:privateAccess Twny.targets.get(o).should.be(null);
+                                @:privateAccess Twny.targetToTweenList.get(o).should.be(null);
                             });
                             it("should be disposed", @:privateAccess {
                                 t0.head.should.be(null);
