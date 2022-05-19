@@ -163,7 +163,6 @@ class Main extends buddy.SingleSuite {
                 });
             });
 
-
             describe("when init relative transition", {
                 var d = 10, o, t0, t1;
                 beforeEach({
@@ -204,8 +203,47 @@ class Main extends buddy.SingleSuite {
                 });
             });
 
+            describe("when init fixed transition", {
+                var d = 10, o, t0, t1;
+                beforeEach({
+                    o = {
+                        x: 0.
+                    };
+                    t0 = new Tween(d)
+                        .to(Linear.easeNone, o.x == 100)
+                        .then(
+                            t1 = new Tween(d)
+                                .to(Linear.easeNone, o.x == 300)
+                        )
+                        .repeat();
+                });
 
-            describe("when init swapped transition", {
+                describe("then start", {
+                    beforeEach(t0.start());
+
+                    describe("then update to 1st 1/4", {
+                        beforeEach(Twny.update(d / 4));
+                        it("should have correct value", o.x.should.be(25));
+
+                        describe("then update to 2nd 1/4", {
+                            beforeEach(Twny.update(d));
+                            it("should have correct value", o.x.should.be(75));
+
+                            describe("then update with overhead to 1st 1/4", {
+                                beforeEach(Twny.update(d));
+                                it("should have correct value", o.x.should.be(25));
+
+                                describe("then update with overhead to 2nd 1/4", {
+                                    beforeEach(Twny.update(d));
+                                    it("should have correct value", o.x.should.be(75));
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
+            describe("when init from transition", {
                 var d = 10, o, t0, t1;
                 beforeEach({
                     o = {
@@ -244,7 +282,6 @@ class Main extends buddy.SingleSuite {
                     });
                 });
             });
-
 
             describe("when init target tween", {
                 var d = 10, o, t0, t1, t2, t3;
@@ -617,7 +654,7 @@ class Main extends buddy.SingleSuite {
             });
 
             describe("when init transition in different ways", {
-                var o, t;
+                var o, f, t;
                 beforeEach({
                     o = { 
                         x: .0, 
@@ -627,9 +664,13 @@ class Main extends buddy.SingleSuite {
                             a: .0, 
                             n: { 
                                 b: .0 
-                            } 
-                        } 
+                            }
+                        },
+                        w: .0,
                     };
+
+                    f = function() return o;
+
                     t = new Tween(10.0)
                         .to(Linear.easeNone, o.x = -100)
                         .to(Linear.easeNone, () -> o.y = 300)
@@ -638,6 +679,7 @@ class Main extends buddy.SingleSuite {
                             o.n.a = 1.0;
                             o.n.n.b = 1.0;
                         })
+                        .to(Linear.easeNone, f().w = 100)
                         .start();
                 });
 
@@ -649,6 +691,7 @@ class Main extends buddy.SingleSuite {
                         o.z.should.be(300);
                         o.n.a.should.be(0.5);
                         o.n.n.b.should.be(0.5);
+                        o.w = 50;
                     });
                 });
             });

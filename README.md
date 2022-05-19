@@ -14,7 +14,7 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
     .to(Quad.easeIn, {
       spr.pos.x = 100;
       spr.pos.y = 150;
-      spr.getChildAt(1).pos.x = -50; // acceptable any expressions providing getting and setting
+      spr.getChildAt(1).pos.x = -50; // any expressions providing getting and setting are acceptable
     })
  ```
 - Tween chaining and branching!  

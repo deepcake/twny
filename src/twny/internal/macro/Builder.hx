@@ -56,6 +56,12 @@ class Builder {
                                 macro new twny.internal.RelativeTransition($easing, $gett, $getf, $set) :
                                 macro new twny.internal.RelativeTransition($easing, $getf, $gett, $set);
                         }
+                        // a == x
+                        case OpEq: {
+                            swapToFrom ?
+                                macro new twny.internal.FixedTransition($easing, $e2, $e1, $set) :
+                                macro new twny.internal.FixedTransition($easing, $e1, $e2, $set);
+                        }
                         case _: {
                             fail(expr);
                         }
