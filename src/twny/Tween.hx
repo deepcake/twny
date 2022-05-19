@@ -31,11 +31,11 @@ class Tween {
      */
     @:isVar public var paused(get, set) = false;
     /**
-     * If `true` the whole tween chain will be started from the beginning after completion
+     * If `true` the whole tween tree will be started from the beginning after completion
      */
     @:isVar public var repeatable(get, set) = false;
     /**
-     * If `true` the whole tween chain will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
+     * If `true` the whole tween tree will be disposed after completion (if `repeatable == false`) or after direct calling `stop()`
      */
     @:isVar public var autodispose(get, set) = true;
 
@@ -45,14 +45,14 @@ class Tween {
     public var completed(get, never):Bool;
 
     /**
-     * `true` if the whole tween chain is completed (elapsed time of each tween in chain == duration)
+     * `true` if the whole tween tree is completed (elapsed time of each tween == duration)
      */
     public var fullyCompleted(get, never):Bool;
 
 
     /**
      * @param duration duration of current tween
-     * @param once if `true` the whole tween chain will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
+     * @param once if `true` the whole tween tree will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
      */
     public function new(duration:Float, once:Bool = true) {
         this.duration = duration;
@@ -60,7 +60,7 @@ class Tween {
     }
 
     /**
-     * Makes tween chain reusable (`autodispose = false`)
+     * Makes tween tree reusable (`autodispose = false`)
      */
     public function reuse() {
         autodispose = false;
@@ -68,7 +68,7 @@ class Tween {
     }
 
     /**
-     * Makes tween chain repeatable (whole tween chain will be started from the beginning after completion)
+     * Makes tween tree repeatable (the whole tween tree will be started from the beginning after completion)
      */
     public function repeat() {
         repeatable = true;
@@ -132,7 +132,9 @@ class Tween {
         }
     }
 
-
+    /**
+     * Starts whole tween tree
+     */
     public function start() {
         if (head != null) {
             head.rootStart();
@@ -148,7 +150,11 @@ class Tween {
     }
 
     /**
-     * @param complete if `true` will update each transition of each nested tween to the end
+     * Stops whole tween tree (and disposes whole tween tree if tween is autodisposible)
+     * @param complete if `true` the each transition of the each nested tween will be updated to the end.  
+     * __Note__ that in some cases with multilple parallel tweens the forced completed values may differ if they was completed in the regular way. 
+     * It is happening because the force completion is completing tweens in the order they was defined, ignoring any differences in duration. 
+     * So, to minimize the possible differences, it is preferable to define tweens from a shorter duration to a longer one. 
      */
     public function stop(complete = false) {
         if (head != null) {
@@ -183,7 +189,9 @@ class Tween {
         }
     }
 
-
+    /**
+     * Disposes whole tween tree. Tween cannot be restarted after calling this method.
+     */
     public function dispose() {
         if (head != null) {
             head.rootDispose();
@@ -213,7 +221,7 @@ class Tween {
     }
 
     /**
-     * Pauses the whole tween chain with ability of resuming
+     * Pauses the whole tween tree with ability of resuming
      */
     public function pause() {
         paused = true;
@@ -221,7 +229,7 @@ class Tween {
     }
 
     /**
-     * Resumes the whole tween chain after it has been paused
+     * Resumes the whole tween tree after it has been paused
      */
     public function resume() {
         paused = false;
@@ -288,17 +296,13 @@ class Tween {
 
 
     /**
-     * Properties can be passed in any format below:  
-     * `() -> { obj.x = 5; obj.y = 10; }`  
-     * `() -> obj.x = 5`  
-     * `{ obj.x = 5; obj.y = 10; }`  
-     * `obj.x = 5`  
-     * Own transition will be generated for every assigment in the properties block. 
-     * For example, `obj.x = 5` will become a transition with var `from = obj.x` and var `to = 5`.  
-     * It is also possible to make a relative transition by passing a short assingment `obj.y += 5`. 
-     * So on every start var `to` will be initialized as `obj.y + 5` instead of simple `5`. It can be useful for reuse.
-     * @param easing `Float->Float`
-     * @param properties function or just block with expressions  
+     * Creates a transitions of passed _properties_ with passed _easing_ from the property's current value to the assingned value.  
+     * There is also available some relativity control:  
+     * A simple assignment `obj.x = val` produces a relative `from = () -> obj.x` and a fixed `to = value`.  
+     * A short assingment `obj.y += val` produces a relative `from = () -> obj.x` and a relative `to = () -> obj.x + val`.  
+     * The relative _from/to_ values is initialized each time the tween starts. The fixed _from/to_ values is initialized only once.
+     * @param easing `Float->Float` easing function
+     * @param properties single expression `obj.x = 5` or block of expressions `{ obj.x = 5; obj.y = 10; }`
      */
 #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
@@ -313,6 +317,15 @@ class Tween {
     }
 #end
 
+    /**
+     * Creates a transitions of passed _properties_ with passed _easing_ from the property's current value to the assingned value.  
+     * There is also available some relativity control:  
+     * A simple assignment `obj.x = val` produces a relative `to = () -> obj.x` and a fixed `from = value`.  
+     * A short assingment `obj.y += val` produces a relative `to = () -> obj.x` and a relative `from = () -> obj.x + val`.  
+     * The relative _from/to_ values is initialized each time the tween starts. The fixed _from/to_ values is initialized only once.
+     * @param easing `Float->Float` easing function
+     * @param properties single expression `obj.x = 5` or block of expressions `{ obj.x = 5; obj.y = 10; }`
+     */
 #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
     public macro function from(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
         var single = easingAndProperties.length == 1;

@@ -8,37 +8,36 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
 ### Wip
 
 ### Features Achieved
- - Parallel transitions with different easings!  
- ```haxe
-  tween(1.0)
-    .to(Quad.easeIn, spr.x = 100)
-    .to(Circ.easeOut, spr.y = 50)
-    .start();
-  Twny.update(1.0); // spr.x == 100, spr.y = 50
- ```
- - Access to nested variables at any depth with autocompletion!  
- _(see [**also**](#also) about autocompletion)_
+ - Access to nested fields at any depth! _(also see [**Also**](#also) about autocompletion)_
  ```haxe
   tween(1.0)
     .to(Quad.easeIn, {
       spr.pos.x = 100;
       spr.pos.y = 150;
-      spr.velocity = 20;
+      spr.getChildAt(1).pos.x = -50; // acceptable any expressions providing getting and setting
     })
  ```
- - Tween chaining and branching!  
+- Tween chaining and branching!  
  ```haxe
-  tween(0)
+  tween(0) // empty tween just to combine a few other tweens, also can be used for waiting
     .then(
-      tween(1.0).to(...)
+      tween(1.0).to(...) // will be started in parallel with 'then' tween below
     )
     .then(
-      tween(3.0).to(...) // will run in parallel with 'then' tween above
+      tween(3.0).to(...)
         .then(...)
         .then(...)
     )
  ```
- - Repeating whole tween chain without oncomplete callback hack!  
+ - Parallel transitions with different easings!  
+ ```haxe
+  tween(1.0)
+    .to(Quad.easeIn, spr.x = 100)
+    .to(Quad.easeOut, spr.y = 50)
+    .start();
+  Twny.update(1.0); // spr.x == 100, spr.y = 50
+ ```
+ - Repeating the whole tween tree without _oncomplete_ callback hack!  
  ```haxe
   tween(.5).to(Quad.easeIn, spr.x = 100)
     .then(
@@ -53,13 +52,20 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
  ```
  - Some callbacks and playback control!  
  ```haxe
-  var t = tween(1.0).to(...);
+  var t = tween(1.0).to(...)
+    //.onStart()
+    //.onUpdate()
+    .onComplete(() -> trace('Hey You!'));
   t.start();
   t.pause();
   t.resume();
   t.stop();
+  // target tween with `using twny.Twny`
+  spr.tween(1.0).to(...);
+  spr.start();
+  spr.stop();
  ```
- - Macro-based, no reflection (but a lot of macro-generated functions instead)  
+ - Macro-based, no reflection _(but a lot of macro-generated functions instead)_  
 
 ### How It Looks Like
 ```haxe
