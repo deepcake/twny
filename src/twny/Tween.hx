@@ -298,13 +298,13 @@ class Tween {
     /**
      * Creates a transitions of passed _properties_ with passed _easing_ from the property's current value to the assingned value.  
      * There is also available some relativity control of the transition:  
-     * - a simple assignment `obj.x = val` produces relative `from = () -> obj.x` and fixed `to = value`.  
+     * - a simple assignment `obj.x = val` produces relative `from = () -> obj.x` and fixed `to = val`.  
      * - a short assingment `obj.x += val` produces relative `from = () -> obj.x` and relative `to = () -> obj.x + val`.  
      * - an equality op `obj.x == val` produces fixed `from = obj.x` and fixed `to = val`.  
      * 
-     * The relative _from/to_ values is initialized each time the tween starts. The fixed _from/to_ values is initialized only once on creation.
+     * The relative _from/to_ values are initialized each time the tween starts. The fixed _from/to_ values are initialized only once on creation.
      * @param easing `Float->Float` easing function
-     * @param properties single expression `obj.x = 5` or block of expressions `{ obj.x = 5; obj.y = 10; }`
+     * @param properties a single expression like `obj.x = 5` or a block of expressions `{ obj.x = 5; obj.y = 10; }`
      */
 #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
@@ -322,13 +322,13 @@ class Tween {
     /**
      * Creates a transitions of passed _properties_ with passed _easing_ from the property's current value to the assingned value.  
      * There is also available some relativity control:  
-     * - a simple assignment `obj.x = val` produces relative `to = () -> obj.x` and fixed `from = value`.  
+     * - a simple assignment `obj.x = val` produces relative `to = () -> obj.x` and fixed `from = val`.  
      * - a short assingment `obj.x += val` produces relative `to = () -> obj.x` and relative `from = () -> obj.x + val`.  
      * - an equality op `obj.x == val` produces fixed `to = obj.x` and fixed `from = val`.  
      * 
-     * The relative _from/to_ values is initialized each time the tween starts. The fixed _from/to_ values is initialized only once on creation.
+     * The relative _from/to_ values are initialized each time the tween starts. The fixed _from/to_ values are initialized only once on creation.
      * @param easing `Float->Float` easing function
-     * @param properties single expression `obj.x = 5` or block of expressions `{ obj.x = 5; obj.y = 10; }`
+     * @param properties a single expression like `obj.x = 5` or block of expressions `{ obj.x = 5; obj.y = 10; }`
      */
 #if twny_autocompletion_hack // hack for autocompletion bug https://github.com/HaxeFoundation/haxe/issues/9421
     public macro function from(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
