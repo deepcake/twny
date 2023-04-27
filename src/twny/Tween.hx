@@ -355,11 +355,11 @@ class Tween {
         stock();
         elapsed = 0.0;
         running = true;
-        for (t in transitions) {
-            t.setup();
-        }
         if (onStartCb != null) {
             onStartCb();
+        }
+        for (t in transitions) {
+            t.setup();
         }
     }
 
