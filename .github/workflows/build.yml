@@ -20,7 +20,8 @@ jobs:
           - macos-latest
           - windows-latest
         haxe: 
-          - 4.2.5
+          - latest
+          - 4.3.1
           # - 4.0.5
 
     steps:
@@ -73,7 +74,7 @@ jobs:
       with:
         haxe-version: ${{ matrix.haxe }}
 
-    - name: Install haxe libs
+    - name: Install Libs
       shell: bash
       run: |
         haxelib install travix
@@ -93,8 +94,8 @@ jobs:
       run: haxelib run travix python
     - name: Test [node ]
       run: haxelib run travix node
-    # - name: Test [js ]
-    #   run: haxelib run travix js
+    - name: Test [js ]
+      run: haxelib run travix js
     # - name: Test [flash ]
     #   run: haxelib run travix flash
     - name: Test [java ]
