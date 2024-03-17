@@ -172,14 +172,10 @@ class Tween {
 
     function rootStop(complete:Bool) {
         if (complete && !completed) {
-            for (t in transitions) {
-                t.apply(1.0);
+            if (!running) {
+                setup();
             }
-            if (next != null) {
-                for (n in next) {
-                    n.setup();
-                }
-            }
+            update(duration);
         }
         elapsed = duration;
         running = false;
