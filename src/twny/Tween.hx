@@ -175,7 +175,14 @@ class Tween {
             if (!running) {
                 setup();
             }
-            update(duration);
+            if (repeatable) {
+                repeatable = false;
+                update(duration);
+                repeatable = true;
+            }
+            else {
+                update(duration);
+            }
         }
         elapsed = duration;
         running = false;
