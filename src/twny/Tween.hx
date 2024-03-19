@@ -77,7 +77,7 @@ class Tween {
     }
 
     public function update(dt:Float) {
-        if (dt > 0 && running && !paused) {
+        if (dt >= 0 && running && !paused) {
 
             elapsed += dt;
 
@@ -103,16 +103,14 @@ class Tween {
 
                 if (next != null) {
                     for (n in next) {
-                        n.setup();
-                        n.update(offset);
+                        n.setup(offset);
                     }
                 }
                 else {
                     if (head != null) {
                         if (head.fullyCompleted) {
                             if (repeatable) {
-                                head.setup();
-                                head.update(offset);
+                                head.setup(offset);
                             }
                             else if (autodispose) {
                                 head.dispose();
@@ -121,8 +119,7 @@ class Tween {
                     }
                     else {
                         if (repeatable) {
-                            this.setup();
-                            this.update(offset);
+                            this.setup(offset);
                         }
                         else if (autodispose) {
                             this.dispose();
@@ -363,7 +360,7 @@ class Tween {
     }
 
 
-    function setup() {
+    function setup(offset = 0.) {
         stock();
         elapsed = 0.0;
         running = true;
@@ -373,6 +370,7 @@ class Tween {
         for (t in transitions) {
             t.setup();
         }
+        update(offset);
     }
 
     function stock() {
