@@ -1,6 +1,5 @@
 package twny;
 
-import twny.internal.FunctionTransition;
 import twny.internal.Transition;
 
 #if macro
@@ -351,12 +350,11 @@ class Tween {
      * @param cb 
      */
     public function fn(easing:Float->Float, from = 0., to = 1., cb:Float->Void):Tween {
-        return transition(new FunctionTransition(easing, from, to, cb));
+        return transition(new twny.internal.FixedTransition(easing, from, to, cb));
     }
 
 
-    @:noCompletion
-    public function transition(t:Transition):Tween {
+    @:noCompletion public function transition(t:Transition):Tween {
         transitions.push(t);
         return this;
     }
