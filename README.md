@@ -14,17 +14,17 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
     .to(Quad.easeIn, {
       spr.pos.x = 100;
       spr.pos.y = 150;
-      scene.getChildAt(1).pos.x = -50; // any expressions providing getting and setting are acceptable
+      scene.getChildAt(1).pos.x = -50; // any getter/setter expressions are acceptable
     })
  ```
 - Tween chaining and branching!  
  ```haxe
-  tween(0) // 1st zero empty tween just to combine a few another tweens (also can be used for waiting)
+  tween(0) // just combine a few other tweens (can also be used for delay)
     .then(
-      tween(1.0).to(...) // will be started after 1st tween
+      tween(1.0).to(...) // will be started after 1-st tween
     )
     .then(
-      tween(3.0).to(...) // will be started after 1st tween in parallel with 'then' tween above
+      tween(3.0).to(...) // will be started after 1-st tween in parallel with tween above
         .then(...)
         .then(...)
     )
@@ -46,27 +46,19 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
  ```haxe
   tween(1.0)
     .to(Quad.easeIn, spr.x = 100)
-    .to(Quad.easeOut, spr.y = 50)
+    .to(Circ.easeOut, spr.y = 50)
  ```
- - Some callbacks and playback control!  
+ - Time callbacks and playback control!  
  ```haxe
-  var t = tween(1.0).to(...)
+  var t = tween(1.0)
     //.onStart()
-    //.onUpdate()
+    .on(.5, () -> trace('Half!'))
     .onComplete(() -> trace('The end!'));
+
   t.start();
   t.pause();
   t.resume();
-  t.stop();
 ```
-```haxe
-  using twny.Twny;
-  ...
-  var spr = new Sprite();
-  spr.tween(1.0).to(...);
-  spr.start();
-  spr.stop();
- ```
  - Macro-based, no reflection _(but a few of macro-generated anonymous functions instead)_  
 
 ### How It Looks Like
@@ -77,21 +69,21 @@ class Example {
   static function main() {
     var obj = { x: 0.0, y: 0.0, z: 0.0 };
 
-    var t = obj.tween(1.0)
+    var t = tween(1.0)
       .to(Quad.easeIn, {
         obj.x = 100;
         obj.y += 100; // relative transition
       })
-      .to(Circ.easeIn, obj.z = 1)
       .then(
-        obj.tween(1.0).to(Circ.easeOut, obj.z = 2)
+        tween(1.0)
+          .to(Circ.easeOut, obj.z = 100)
       )
       .repeat()
       .start();
 
-    Twny.update(1.0); // { x: 100, y: 100, z: 1 }
-    Twny.update(1.0); // { x: 100, y: 100, z: 2 }
-    Twny.update(1.0); // { x: 100, y: 200, z: 1 }
+    Twny.update(1.0); // { x: 100, y: 100, z: 0 }
+    Twny.update(1.0); // { x: 100, y: 100, z: 100 }
+    Twny.update(1.0); // { x: 100, y: 200, z: 100 }
   }
 }
 ```
