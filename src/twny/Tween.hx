@@ -7,6 +7,12 @@ import twny.internal.Transition;
 import haxe.macro.Expr;
 #end
 
+
+@:publicFields @:structInit private class Cb {
+    var time:Float;
+    var fn:Void->Void;
+}
+
 @:access(twny)
 class Tween {
 
@@ -18,9 +24,8 @@ class Tween {
 
     var stocked = false;
 
-    var onStartCb:Void->Void;
-    var onUpdateCb:Void->Void;
-    var onCompleteCb:Void->Void;
+    var cbs:Array<Cb>;
+    var cbi = 0;
 
     public var duration(default, null):Float;
 
@@ -87,19 +92,13 @@ class Tween {
                 t.apply(k);
             }
 
-            if (onUpdateCb != null) {
-                onUpdateCb();
-            }
+            emit();
 
             if (elapsed >= duration) {
                 var offset = elapsed - duration;
 
                 elapsed = duration;
                 running = false;
-
-                if (onCompleteCb != null) {
-                    onCompleteCb();
-                }
 
                 if (next != null) {
                     for (n in next) {
@@ -214,9 +213,8 @@ class Tween {
         transitions.resize(0);
         head = null;
         next = null;
-        onStartCb = null;
-        onUpdateCb = null;
-        onCompleteCb = null;
+        cbs = null;
+        cbi = 0;
         elapsed = 0.0;
         running = false;
     }
@@ -237,22 +235,27 @@ class Tween {
         return this;
     }
 
+
+    /**
+     * Adds a callback that will be called on passed _time_
+     */
+    public function on(time:Float, cb:Void->Void) {
+        if (cbs == null) {
+            cbs = [ { time: time, fn: cb } ];
+        }
+        else {
+            cbs.push({ time: time, fn: cb });
+            haxe.ds.ArraySort.sort(cbs, (cb1, cb2) -> cb1.time == cb2.time ? 0 : cb1.time > cb2.time ? 1 : -1);
+        }
+        return this;
+    }
+
     /**
      * Adds a callback that will be called every time _this_ tween is started (multiple times if `repeatable == true`)
      * @param cb `Void->Void`
      */
     public function onStart(cb:Void->Void) {
-        onStartCb = cb;
-        return this;
-    }
-
-    /**
-     * Adds a callback that will be called every time _this_ tween is updated
-     * @param cb `Void->Void`
-     */
-    public function onUpdate(cb:Void->Void) {
-        onUpdateCb = cb;
-        return this;
+        return inline on(0., cb);
     }
 
     /**
@@ -260,8 +263,7 @@ class Tween {
      * @param cb `Void->Void`
      */
     public function onComplete(cb:Void->Void) {
-        onCompleteCb = cb;
-        return this;
+        return inline on(duration, cb);
     }
 
     /**
@@ -360,13 +362,26 @@ class Tween {
     }
 
 
+    function emit() {
+        if (cbs != null) {
+            for (i in cbi...cbs.length) {
+                if (elapsed >= cbs[i].time) {
+                    cbs[i].fn();
+                    cbi++;
+                }
+                else {
+                    break;
+                }
+            }
+        }
+    }
+
     function setup(offset = 0.) {
         stock();
         elapsed = 0.0;
         running = true;
-        if (onStartCb != null) {
-            onStartCb();
-        }
+        cbi = 0;
+        emit();
         for (t in transitions) {
             t.setup();
         }

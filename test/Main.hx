@@ -695,6 +695,61 @@ class Main extends buddy.SingleSuite {
                     });
                 });
             });
+
+            describe("when callbacks used", {
+                var r, t;
+
+                beforeEach({
+                    r = "";
+                    t = new Tween(9)
+                        .repeat()
+                        .on(0, () -> r += "0")
+                        .on(9, () -> r += "9")
+                        .onStart(() -> r += "S")
+                        .onComplete(() -> r += "C")
+                        .on(5., () -> r += "5");
+                });
+
+                describe("then start", {
+                    beforeEach(t.start());
+
+                    it("should be correct emitted", {
+                        r.should.be("0S");
+                    });
+
+                    describe("then update to 4.9", {
+                        beforeEach(Twny.update(4.9));
+
+                        it("should be correct emitted", {
+                            r.should.be("0S");
+                        });
+
+                        describe("then update to 5.0", {
+                            beforeEach(Twny.update(0.1));
+    
+                            it("should be correct emitted", {
+                                r.should.be("0S5");
+                            });
+
+                            describe("then update to 9.0", {
+                                beforeEach(Twny.update(5.0));
+        
+                                it("should be correct emitted", {
+                                    r.should.be("0S59C0S");
+                                });
+
+                                describe("then update to 10.0", {
+                                    beforeEach(Twny.update(1.0));
+            
+                                    it("should be correct emitted", {
+                                        r.should.be("0S59C0S");
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
         });
     }
 }
