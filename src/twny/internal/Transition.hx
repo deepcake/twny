@@ -2,7 +2,6 @@ package twny.internal;
 
 abstract class Transition {
 
-
     var easing:Float->Float;
 
     var from:Float;

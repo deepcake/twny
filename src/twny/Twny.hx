@@ -1,10 +1,5 @@
 package twny;
 
-import haxe.ds.ObjectMap;
-import haxe.ds.List;
-
-using Lambda;
-
 @:access(twny)
 class Twny {
 

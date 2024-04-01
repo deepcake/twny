@@ -2,7 +2,6 @@ package twny.internal;
 
 class FixedTransition extends Transition {
 
-
     @:noCompletion
     public function new(easing:Float->Float, from:Float, to:Float, set:Float->Void) {
         this.easing = easing;

@@ -2,7 +2,6 @@ package twny.internal;
 
 class FixedFromTransition extends Transition {
 
-
     var gett:Void->Float;
 
 

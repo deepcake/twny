@@ -2,7 +2,6 @@ package twny.internal;
 
 class RelativeTransition extends Transition {
 
-
     var gett:Void->Float;
     var getf:Void->Float;
 

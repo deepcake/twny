@@ -12,19 +12,9 @@ import haxe.macro.Expr;
     var fn:Void->Void;
 }
 
+
 @:access(twny)
 class Tween {
-
-
-    var transitions = new Array<Transition>();
-
-    var head:Tween;
-    var next:Array<Tween>;
-
-    var stocked = false;
-
-    var cbs:Array<Cb>;
-    var cbi = 0;
 
     public var duration(default, null):Float;
 
@@ -53,6 +43,17 @@ class Tween {
      * `true` if the whole tween tree is completed (elapsed time of each tween == duration)
      */
     public var fullyCompleted(get, never):Bool;
+
+
+    var transitions = new Array<Transition>();
+
+    var head:Tween;
+    var next:Array<Tween>;
+
+    var stocked = false;
+
+    var cbs:Array<Cb>;
+    var cbi = 0;
 
 
     /**

@@ -10,7 +10,6 @@ using Lambda;
 
 class Builder {
 
-
     public static function transitions(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>, swapToFrom = false):ExprOf<Tween> {
         var transitions = [];
 
