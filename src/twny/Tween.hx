@@ -309,7 +309,7 @@ class Tween {
      * @param easing `Float->Float` easing function
      * @param properties a single expression like `obj.x = 5` or a block of expressions `{ obj.x = 5; obj.y = 10; }`
      */
-#if twny-autocompletion-hack
+#if twny_autocompletion_hack
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
         var single = easingAndProperties.length == 1;
         var easing = single ? macro twny.easing.Linear.easeNone : easingAndProperties[0];
@@ -333,7 +333,7 @@ class Tween {
      * @param easing `Float->Float` easing function
      * @param properties a single expression like `obj.x = 5` or block of expressions `{ obj.x = 5; obj.y = 10; }`
      */
-#if twny-autocompletion-hack
+#if twny_autocompletion_hack
     public macro function from(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
         var single = easingAndProperties.length == 1;
         var easing = single ? macro twny.easing.Linear.easeNone : easingAndProperties[0];
