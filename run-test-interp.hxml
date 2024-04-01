@@ -1,11 +1,12 @@
--cp src
--cp test
+-p src
+-p test
+-m Main
 
 -L buddy
 
--main Main
--dce full
+--dce full
+
 --interp
 
--D twny_autocompletion_hack
+-D twny-autocompletion-hack
 -D buddy-ignore-passing-specs

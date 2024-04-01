@@ -1,9 +1,9 @@
--cp test
+-p test
+-m Main
 
 -L buddy
 
--main Main
--dce full
+--dce full
 
 -D analyzer-optimize
 -D buddy-ignore-passing-specs
