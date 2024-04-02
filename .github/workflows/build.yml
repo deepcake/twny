@@ -21,7 +21,7 @@ jobs:
           # - windows-latest
         haxe: 
           - latest
-          - 4.3.1
+          - 4.3.4
           # - 4.0.5
 
     steps:
@@ -79,7 +79,7 @@ jobs:
       run: |
         # haxelib install travix
         # to always use the latest version of travix comment out the previous line and uncomment the next
-        haxelib git travix https://github.com/back2dos/travix && pushd . && cd $(haxelib config)travix/git && haxe build-neko.hxml && popd
+        haxelib git travix https://github.com/back2dos/travix && pushd . && cd $(haxelib config)travix/git && haxe build-neko.hxml -lib hx3compat && popd
         haxelib run travix install
 
 
