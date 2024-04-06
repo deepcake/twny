@@ -2,13 +2,51 @@
 
 ![build status](https://github.com/deepcake/twny/actions/workflows/build.yml/badge.svg)
 
-Experimantal macro-based tweening library.
+Experimental macro-based tweening library.
 Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic Engine](https://github.com/ceramic-engine/ceramic)'s integrated tweening system.
 
 ### Wip
 
+### How It Looks Like
+```haxe
+import twny.Twny.tween;
+
+class Example {
+  static function main() {
+    var s = { x: 0., y: 0., z: 0., scale: 1. };
+
+    tween(0)
+      .then(
+        tween(1.0)
+          .to(Linear.easeNone, {
+            s.x = 200;
+            s.z = 200;
+          })
+          .from(Quad.easeOut, {
+            s.scale *= 2;
+          })
+          .onComplete(() -> {
+            trace("Done!");
+          })
+      )
+      .then(
+        tween(0.5)
+          .to(Circ.easeOut, s.y -= 100)
+          .then(
+            tween(0.5)
+              .to(Circ.easeIn, s.y += 100)
+          )
+      )
+      .start()
+      .repeat();
+
+    Twny.update(.5);
+  }
+}
+```
+
 ### Features Achieved
- - Access to nested fields at any depth! _(also see [**also**](#also) about autocompletion)_
+ - Access to nested fields at any depth! _(also see [also](#also) about autocompletion)_
  ```haxe
   tween(1.0)
     .to(Quad.easeIn, {
@@ -17,7 +55,7 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
       scene.getChildAt(1).pos.x = -50; // any getter/setter expressions are acceptable
     })
  ```
-- Tween chaining and branching!  
+- Tween chaining and branching!
  ```haxe
   tween(0) // just combine a few other tweens (can also be used for delay)
     .then(
@@ -29,7 +67,7 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
         .then(...)
     )
  ```
- - Repeating the whole tween tree without _oncomplete_ callback hack!  
+ - Repeating the whole tween tree without using _oncomplete_ callback!
  ```haxe
   tween(.5).to(Quad.easeIn, spr.x = 100)
     .then(
@@ -42,13 +80,13 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
   Twny.update(.5); // spr.x == 100
   Twny.update(.5); // spr.x == 200
  ```
-  - Parallel transitions with different easings! _(not a big deal, but this is one of the features that made me start working on this lib)_  
+  - Parallel transitions with different easings! _(not a big deal, but this is the one that made me start working on this lib)_
  ```haxe
   tween(1.0)
     .to(Quad.easeIn, spr.x = 100)
     .to(Circ.easeOut, spr.y = 50)
  ```
- - Time callbacks and playback control!  
+ - Time callbacks and playback control!
  ```haxe
   var t = tween(1.0)
     //.onStart()
@@ -59,36 +97,9 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
   t.pause();
   t.resume();
 ```
- - Macro-based, no reflection _(but a few of macro-generated anonymous functions instead)_  
-
-### How It Looks Like
-```haxe
-using twny.Twny;
-
-class Example {
-  static function main() {
-    var obj = { x: 0.0, y: 0.0, z: 0.0 };
-
-    var t = tween(1.0)
-      .to(Quad.easeIn, {
-        obj.x = 100;
-        obj.y += 100; // relative transition
-      })
-      .then(
-        tween(1.0)
-          .to(Circ.easeOut, obj.z = 100)
-      )
-      .repeat()
-      .start();
-
-    Twny.update(1.0); // { x: 100, y: 100, z: 0 }
-    Twny.update(1.0); // { x: 100, y: 100, z: 100 }
-    Twny.update(1.0); // { x: 100, y: 200, z: 100 }
-  }
-}
-```
+ - Macro-based, no reflection _(but a several macro-generated anonymous functions instead)_
 
 ### Also
-`-D twny-autocompletion-hack` - workaround to achieve autocompletion for macro func args. See issues:  
-https://github.com/HaxeFoundation/haxe/issues/7699  
-https://github.com/HaxeFoundation/haxe/issues/9421  
+`-D twny-autocompletion-hack` - workaround to achieve autocompletion for macro func args. See issues:
+https://github.com/HaxeFoundation/haxe/issues/7699
+https://github.com/HaxeFoundation/haxe/issues/9421
