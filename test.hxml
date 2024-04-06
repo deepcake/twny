@@ -1,3 +1,4 @@
+-p src
 -p test
 -m Main
 
