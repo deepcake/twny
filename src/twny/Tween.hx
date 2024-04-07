@@ -35,7 +35,7 @@ class Tween {
     @:isVar public var autodispose(get, set) = true;
 
     /**
-     * `true` if current tween is completed (elapsed time == duration)
+     * `true` if  _this_ tween is completed (elapsed time == duration)
      */
     public var completed(get, never):Bool;
 
@@ -58,15 +58,15 @@ class Tween {
 
     /**
      * @param duration duration of current tween
-     * @param once if `true` the whole tween tree will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
+     * @param autodispose if `true` the whole tween tree will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
      */
-    public function new(duration:Float, once:Bool = true) {
+    public function new(duration:Float, autodispose = true) {
         this.duration = duration;
-        this.autodispose = once;
+        this.autodispose = autodispose;
     }
 
     /**
-     * Makes tween tree reusable (`autodispose = false`)
+     * Makes tween reusable (`autodispose = false`)
      */
     public function reuse() {
         autodispose = false;
@@ -74,7 +74,7 @@ class Tween {
     }
 
     /**
-     * Makes tween tree repeatable (the whole tween tree will be started from the beginning after completion)
+     * Makes tween repeatable (the whole tween tree will be started from the beginning after completion)
      */
     public function repeat() {
         repeatable = true;
@@ -149,7 +149,7 @@ class Tween {
     /**
      * Stops whole tween tree (and disposes whole tween tree if tween is autodisposible)
      * @param complete if `true` the each transition of the each nested tween will be updated to the end.  
-     * __Note__ that in some cases with multilple parallel tweens the forced completed values may differ if they was completed in the regular way. 
+     * __Note__ that in some cases with multilple parallel nested tweens the forced completed values may differ if they was completed in the regular way. 
      * It is happening because the force completion is completing tweens in the order they was defined, ignoring any differences in duration. 
      * So, to minimize the possible differences, it is preferable to define tweens from a shorter duration to a longer one. 
      */
@@ -299,15 +299,14 @@ class Tween {
 
 
     /**
-     * Creates a transitions of passed _properties_ with passed _easing_ from the property's current value to the assingned value.  
-     * There is also available some relativity control of the transition:  
-     * - a simple assignment `obj.x = val` produces relative `from = () -> obj.x` and fixed `to = val`.  
-     * - a short assingment `obj.x += val` produces relative `from = () -> obj.x` and relative `to = () -> obj.x + val`.  
-     * - an equality op `obj.x == val` produces fixed `from = obj.x` and fixed `to = val`.  
-     * 
-     * The relative _from/to_ values are initialized each time the tween starts. The fixed _from/to_ values are initialized only once on creation.
+     * Creates transitions of passed _properties_ with passed _easing_ from the current value to the assingned value.  
+     * There are available some relativity control of the created transitions depending on the assignment type. 
+     * Relative transitions are called init on each tween start, whereas fixed transitions are called init only once on creation.  
+     * - simple assignment `o.x = val` produces relative `from = o.x` and fixed `to = val`.  
+     * - short assingment `o.x += val` produces relative `from = o.x` and relative `to = o.x + val`.  
+     * - equality op `o.x == val` produces fixed `from = o.x` and fixed `to = val`.  
      * @param easing `Float->Float` easing function
-     * @param properties a single expression like `obj.x = 5` or a block of expressions `{ obj.x = 5; obj.y = 10; }`
+     * @param properties single assingment expression like `o.x = 5` or a block of expressions `{ o.x = 5; o.y = 10; }`
      */
 #if twny_autocompletion_hack
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
@@ -323,15 +322,14 @@ class Tween {
 #end
 
     /**
-     * Creates a transitions of passed _properties_ with passed _easing_ from the property's current value to the assingned value.  
-     * There is also available some relativity control:  
-     * - a simple assignment `obj.x = val` produces relative `to = () -> obj.x` and fixed `from = val`.  
-     * - a short assingment `obj.x += val` produces relative `to = () -> obj.x` and relative `from = () -> obj.x + val`.  
-     * - an equality op `obj.x == val` produces fixed `to = obj.x` and fixed `from = val`.  
-     * 
-     * The relative _from/to_ values are initialized each time the tween starts. The fixed _from/to_ values are initialized only once on creation.
+     * Creates transitions of passed _properties_ with passed _easing_ from the assingned value to the current value.  
+     * There are available some relativity control of the created transitions depending on the assignment type. 
+     * Relative transitions are called init on each tween start, whereas fixed transitions are called init only once on creation.  
+     * - simple assignment `o.x = val` produces relative `to = o.x` and fixed `from = val`.  
+     * - short assingment `o.x += val` produces relative `to = o.x` and relative `from = o.x + val`.  
+     * - equality op `o.x == val` produces fixed `to = o.x` and fixed `from = val`.  
      * @param easing `Float->Float` easing function
-     * @param properties a single expression like `obj.x = 5` or block of expressions `{ obj.x = 5; obj.y = 10; }`
+     * @param properties single assingment expression like `o.x = 5` or block of expressions `{ o.x = 5; o.y = 10; }`
      */
 #if twny_autocompletion_hack
     public macro function from(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
