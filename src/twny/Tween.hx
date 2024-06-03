@@ -133,17 +133,8 @@ class Tween {
      * Starts whole tween tree
      */
     public function start() {
-        if (head != null) {
-            head.rootStart();
-        }
-        else {
-            this.rootStart();
-        }
-        return this;
-    }
-
-    inline function rootStart() {
         setup();
+        return this;
     }
 
     /**
@@ -154,19 +145,6 @@ class Tween {
      * So, to minimize the possible differences, it is preferable to define tweens from a shorter duration to a longer one. 
      */
     public function stop(complete = false) {
-        if (head != null) {
-            head.rootStop(complete);
-        }
-        else {
-            this.rootStop(complete);
-        }
-        if (autodispose) {
-            dispose();
-        }
-        return this;
-    }
-
-    function rootStop(complete:Bool) {
         if (complete && !completed) {
             if (!running) {
                 setup();
@@ -184,27 +162,22 @@ class Tween {
         running = false;
         if (next != null) {
             for (n in next) {
-                n.rootStop(complete);
+                n.stop(complete);
             }
         }
+        if (autodispose) {
+            dispose();
+        }
+        return this;
     }
 
     /**
      * Disposes whole tween tree. Tween cannot be restarted after calling this method.
      */
     public function dispose() {
-        if (head != null) {
-            head.rootDispose();
-        }
-        else {
-            this.rootDispose();
-        }
-    }
-
-    function rootDispose() {
         if (next != null) {
             for (n in next) {
-                n.rootDispose();
+                n.dispose();
             }
         }
         for (t in transitions) {
@@ -286,18 +259,6 @@ class Tween {
         return this;
     }
 
-    function setHead(tween:Tween) {
-        head = tween;
-        elapsed = 0.0;
-        running = false;
-        if (next != null) {
-            for (n in next) {
-                n.setHead(head);
-            }
-        }
-    }
-
-
     /**
      * Creates transitions of passed _properties_ with passed _easing_ from the current value to the assingned value.  
      * There are available some relativity control of the created transitions depending on the assignment type. 
@@ -358,6 +319,17 @@ class Tween {
         return this;
     }
 
+
+    function setHead(tween:Tween) {
+        head = tween;
+        elapsed = 0.0;
+        running = false;
+        if (next != null) {
+            for (n in next) {
+                n.setHead(head);
+            }
+        }
+    }
 
     function emit() {
         if (cbs != null) {
