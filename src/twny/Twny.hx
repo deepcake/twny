@@ -30,7 +30,12 @@ class Twny {
 
     public static function reset() {
         for (tween in updating) {
-            tween.dispose();
+            if (tween.head != null) {
+                tween.head.dispose();
+            }
+            else {
+                tween.dispose();
+            }
         }
         updating.resize(0);
     }
