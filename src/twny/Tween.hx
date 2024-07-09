@@ -30,12 +30,12 @@ class Tween {
      */
     @:isVar public var repeatable(get, set) = false;
     /**
-     * If `true` the whole tween tree will be disposed after completion (if `repeatable == false`) or after direct calling `stop()`
+     * If `true` the whole tween tree will be disposed after completion (if repeatable == `false`) or after direct calling `stop()`
      */
     @:isVar public var autodispose(get, set) = true;
 
     /**
-     * `true` if  _this_ tween is completed (elapsed time == duration)
+     * `true` if _this_ tween is completed (elapsed time == duration)
      */
     public var completed(get, never):Bool;
 
@@ -58,7 +58,7 @@ class Tween {
 
     /**
      * @param duration duration of current tween
-     * @param autodispose if `true` the whole tween tree will be disposed after completion (if `repeatable == false`) or after direct calling `stop`
+     * @param autodispose if `true` the whole tween tree will be disposed after completion (if repeatable == `false`) or after direct calling `stop()`
      */
     public function new(duration:Float, autodispose = true) {
         this.duration = duration;
@@ -66,7 +66,7 @@ class Tween {
     }
 
     /**
-     * Makes tween reusable (`autodispose = false`)
+     * Makes tween reusable (sets autodispose to `false`)
      */
     public function reuse() {
         autodispose = false;
@@ -262,12 +262,12 @@ class Tween {
     /**
      * Creates transitions of passed _properties_ with passed _easing_ from the current value to the assingned value.  
      * There are available some relativity control of the created transitions depending on the assignment type. 
-     * Relative transitions are called init on each tween start, whereas fixed transitions are called init only once on creation.  
+     * Relative transitions are calling init on each tween start, whereas fixed transitions are calling init only once on creation.  
      * - simple assignment `o.x = val` produces relative `from = o.x` and fixed `to = val`.  
      * - short assingment `o.x += val` produces relative `from = o.x` and relative `to = o.x + val`.  
      * - equality op `o.x == val` produces fixed `from = o.x` and fixed `to = val`.  
      * @param easing `Float->Float` easing function
-     * @param properties single assingment expression like `o.x = 5` or a block of expressions `{ o.x = 5; o.y = 10; }`
+     * @param properties Single assingment expression like `o.x = 5` or a block of expressions `{ o.x = 5; o.y = 10; }`
      */
 #if twny_autocompletion_hack
     public macro function to(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
@@ -285,12 +285,12 @@ class Tween {
     /**
      * Creates transitions of passed _properties_ with passed _easing_ from the assingned value to the current value.  
      * There are available some relativity control of the created transitions depending on the assignment type. 
-     * Relative transitions are called init on each tween start, whereas fixed transitions are called init only once on creation.  
+     * Relative transitions are calling init on each tween start, whereas fixed transitions are calling init only once on creation.  
      * - simple assignment `o.x = val` produces relative `to = o.x` and fixed `from = val`.  
      * - short assingment `o.x += val` produces relative `to = o.x` and relative `from = o.x + val`.  
      * - equality op `o.x == val` produces fixed `to = o.x` and fixed `from = val`.  
      * @param easing `Float->Float` easing function
-     * @param properties single assingment expression like `o.x = 5` or block of expressions `{ o.x = 5; o.y = 10; }`
+     * @param properties Single assingment expression like `o.x = 5` or block of expressions `{ o.x = 5; o.y = 10; }`
      */
 #if twny_autocompletion_hack
     public macro function from(self:ExprOf<Tween>, easingAndProperties:Array<Expr>):ExprOf<Tween> {
