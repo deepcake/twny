@@ -22,7 +22,6 @@ jobs:
         haxe:
         - nightly
         - latest  # latest stable release
-        - 4.3.4
     with:
       runner-os: ${{ matrix.os }}
       haxe-version: ${{ matrix.haxe }}
