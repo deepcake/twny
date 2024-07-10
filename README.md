@@ -1,6 +1,6 @@
 # twny
 
-![build status](https://github.com/deepcake/twny/actions/workflows/build.yml/badge.svg)
+![build status](https://github.com/deepcake/twny/actions/workflows/ci.yml/badge.svg)
 
 Experimental macro-based tweening library.
 Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic Engine](https://github.com/ceramic-engine/ceramic)'s integrated tweening system.
