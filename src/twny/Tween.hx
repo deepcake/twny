@@ -50,17 +50,20 @@ class Tween {
     var head:Tween;
     var next:Array<Tween>;
 
+    var runner:Tweener;
+
     var stocked = false;
 
-    var cbs:Array<Cb>;
-    var cbi = 0;
+    var callbacks:Array<Cb>;
+    var cbIndex = 0;
 
 
     /**
      * @param duration duration of current tween
      * @param autodispose if `true` the whole tween tree will be disposed after completion (if repeatable == `false`) or after direct calling `stop()`
      */
-    public function new(duration:Float, autodispose = true) {
+    public function new(?runner:Tweener, duration:Float, autodispose = true) {
+        this.runner = runner ?? Tweener.main;
         this.duration = duration;
         this.autodispose = autodispose;
     }
@@ -186,8 +189,8 @@ class Tween {
         transitions.resize(0);
         head = null;
         next = null;
-        cbs = null;
-        cbi = 0;
+        callbacks = null;
+        cbIndex = 0;
         elapsed = 0.0;
         running = false;
     }
@@ -213,12 +216,12 @@ class Tween {
      * Adds a callback that will be called on passed _time_
      */
     public function on(time:Float, cb:Void->Void) {
-        if (cbs == null) {
-            cbs = [ { time: time, fn: cb } ];
+        if (callbacks == null) {
+            callbacks = [ { time: time, fn: cb } ];
         }
         else {
-            cbs.push({ time: time, fn: cb });
-            haxe.ds.ArraySort.sort(cbs, (cb1, cb2) -> cb1.time == cb2.time ? 0 : cb1.time > cb2.time ? 1 : -1);
+            callbacks.push({ time: time, fn: cb });
+            haxe.ds.ArraySort.sort(callbacks, (cb1, cb2) -> cb1.time == cb2.time ? 0 : cb1.time > cb2.time ? 1 : -1);
         }
         return this;
     }
@@ -332,11 +335,11 @@ class Tween {
     }
 
     function emit() {
-        if (cbs != null) {
-            for (i in cbi...cbs.length) {
-                if (elapsed >= cbs[i].time) {
-                    cbs[i].fn();
-                    cbi++;
+        if (callbacks != null) {
+            for (i in cbIndex...callbacks.length) {
+                if (elapsed >= callbacks[i].time) {
+                    callbacks[i].fn();
+                    cbIndex++;
                 }
                 else {
                     break;
@@ -349,7 +352,7 @@ class Tween {
         stock();
         elapsed = 0.0;
         running = true;
-        cbi = 0;
+        cbIndex = 0;
         emit();
         for (t in transitions) {
             t.setup();
@@ -359,7 +362,7 @@ class Tween {
 
     function stock() {
         if (!stocked) {
-            Twny.addTween(this);
+            runner.queue(this);
             stocked = true;
         }
     }
