@@ -35,12 +35,12 @@ class Tween {
     @:isVar public var autodispose(get, set) = true;
 
     /**
-     * `true` if _this_ tween is completed (elapsed time == duration)
+     * `true` if this tween is completed (elapsed time >= duration)
      */
     public var completed(get, never):Bool;
 
     /**
-     * `true` if the whole tween tree is completed (elapsed time of each tween == duration)
+     * `true` if this tween and all following ones are completed (elapsed time of each >= duration)
      */
     public var fullyCompleted(get, never):Bool;
 
@@ -48,21 +48,28 @@ class Tween {
     var transitions = new Array<Transition>();
 
     var head:Tween;
+    var prev:Tween;
     var next:Array<Tween>;
+
+    var runner:Tweener;
 
     var stocked = false;
 
-    var cbs:Array<Cb>;
-    var cbi = 0;
+    var callbacks:Array<Cb>;
+    var cbIndex = 0;
+
+    var backwardDuration:Float;
 
 
     /**
      * @param duration duration of current tween
      * @param autodispose if `true` the whole tween tree will be disposed after completion (if repeatable == `false`) or after direct calling `stop()`
      */
-    public function new(duration:Float, autodispose = true) {
+    public function new(?runner:Tweener, duration:Float, autodispose = true) {
+        this.runner = runner ?? TweenerTools.instance;
         this.duration = duration;
         this.autodispose = autodispose;
+        backwardDuration = duration;
     }
 
     /**
@@ -97,7 +104,6 @@ class Tween {
             if (elapsed >= duration) {
                 var offset = elapsed - duration;
 
-                elapsed = duration;
                 running = false;
 
                 if (next != null) {
@@ -109,7 +115,8 @@ class Tween {
                     if (head != null) {
                         if (head.fullyCompleted) {
                             if (repeatable) {
-                                head.setup(offset);
+                                var last = head.tail();
+                                head.setup(last.elapsed - last.duration);
                             }
                             else if (autodispose) {
                                 head.dispose();
@@ -185,9 +192,10 @@ class Tween {
         }
         transitions.resize(0);
         head = null;
+        prev = null;
         next = null;
-        cbs = null;
-        cbi = 0;
+        callbacks = null;
+        cbIndex = 0;
         elapsed = 0.0;
         running = false;
     }
@@ -213,12 +221,12 @@ class Tween {
      * Adds a callback that will be called on passed _time_
      */
     public function on(time:Float, cb:Void->Void) {
-        if (cbs == null) {
-            cbs = [ { time: time, fn: cb } ];
+        if (callbacks == null) {
+            callbacks = [ { time: time, fn: cb } ];
         }
         else {
-            cbs.push({ time: time, fn: cb });
-            haxe.ds.ArraySort.sort(cbs, (cb1, cb2) -> cb1.time == cb2.time ? 0 : cb1.time > cb2.time ? 1 : -1);
+            callbacks.push({ time: time, fn: cb });
+            haxe.ds.ArraySort.sort(callbacks, (cb1, cb2) -> cb1.time == cb2.time ? 0 : cb1.time > cb2.time ? 1 : -1);
         }
         return this;
     }
@@ -244,14 +252,7 @@ class Tween {
      * @param tween `Tween`
      */
     public function then(tween:Tween) {
-        if (tween.head != null) {
-            if (tween.head.next != null) {
-                tween.head.next.remove(tween);
-            }
-        }
-
-        tween.setHead(head != null ? head : this);
-
+        tween.attachTo(this);
         if (next == null) {
             next = new Array<Tween>();
         }
@@ -320,23 +321,25 @@ class Tween {
     }
 
 
-    function setHead(tween:Tween) {
-        head = tween;
+    function attachTo(tween:Tween) {
+        prev = tween;
+        head = tween?.head ?? tween;
+        backwardDuration = prev.backwardDuration + duration;
         elapsed = 0.0;
         running = false;
         if (next != null) {
             for (n in next) {
-                n.setHead(head);
+                n.attachTo(this);
             }
         }
     }
 
     function emit() {
-        if (cbs != null) {
-            for (i in cbi...cbs.length) {
-                if (elapsed >= cbs[i].time) {
-                    cbs[i].fn();
-                    cbi++;
+        if (callbacks != null) {
+            for (i in cbIndex...callbacks.length) {
+                if (elapsed >= callbacks[i].time) {
+                    callbacks[i].fn();
+                    cbIndex++;
                 }
                 else {
                     break;
@@ -349,7 +352,7 @@ class Tween {
         stock();
         elapsed = 0.0;
         running = true;
-        cbi = 0;
+        cbIndex = 0;
         emit();
         for (t in transitions) {
             t.setup();
@@ -359,13 +362,34 @@ class Tween {
 
     function stock() {
         if (!stocked) {
-            Twny.addTween(this);
+            runner.queue(this);
             stocked = true;
         }
     }
 
     function unstock() {
         stocked = false;
+    }
+
+    function tail():Tween {
+        var ret = this;
+        if (next != null) {
+            if (next.length == 1) {
+                ret = next[0].tail();
+            }
+            else {
+                var max = 0.;
+                for (n in next) {
+                    var t = n.tail();
+                    var d = t.backwardDuration;
+                    if (d > max) {
+                        max = d;
+                        ret = t;
+                    }
+                }
+            }
+        }
+        return ret;
     }
 
 
@@ -397,8 +421,13 @@ class Tween {
     function get_fullyCompleted() {
         var ret = completed;
         if (next != null) {
-            for (n in next) {
-                ret = ret && n.fullyCompleted;
+            if (next.length == 1) {
+                ret = ret && next[0].fullyCompleted;
+            }
+            else {
+                for (n in next) {
+                    ret = ret && n.fullyCompleted;
+                }
             }
         }
         return ret;

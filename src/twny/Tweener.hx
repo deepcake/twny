@@ -1,17 +1,20 @@
 package twny;
 
 @:access(twny)
-class Twny {
+class Tweener {
 
-    static final updating = new Array<Tween>();
+    final updating = new Array<Tween>();
 
 
-    public static function tween(duration:Float) {
-        return new Tween(duration);
+    public function new() {
+        
     }
 
+    public function tween(duration:Float, autodispose = true) {
+        return new Tween(this, duration, autodispose);
+    }
 
-    public static function update(dt:Float) {
+    public function update(dt:Float) {
         var l = updating.length;
         var i = 0;
         while (i < l) {
@@ -28,7 +31,7 @@ class Twny {
         }
     }
 
-    public static function reset() {
+    public function reset() {
         for (tween in updating) {
             if (tween.head != null) {
                 tween.head.dispose();
@@ -41,7 +44,7 @@ class Twny {
     }
 
 
-    static inline function addTween(tween:Tween) {
+    inline function queue(tween:Tween) {
         updating.push(tween);
     }
 
