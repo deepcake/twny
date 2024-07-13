@@ -1,13 +1,13 @@
 import twny.Tween;
 import twny.easing.*;
-import twny.Tweener;
+import twny.TweenerTools.instance as tweener;
 
 using buddy.Should;
 
 class Main extends buddy.SingleSuite {
     public function new() {
         describe("test", {
-            beforeEach(Tweener.main.reset());
+            beforeEach(tweener.reset());
 
             describe("when init 1st tween with then 2nd with then 3rd", {
                 var d = 10, o, t0, t1, t2;
@@ -31,19 +31,19 @@ class Main extends buddy.SingleSuite {
                     beforeEach(t0.start());
 
                     describe("then update to 1st half", {
-                        beforeEach(Tweener.main.update(d / 2));
+                        beforeEach(tweener.update(d / 2));
                         it("should have correct value", o.x.should.be(50));
 
                         describe("then update to 2nd half", {
-                            beforeEach(Tweener.main.update(d));
+                            beforeEach(tweener.update(d));
                             it("should have correct value", o.x.should.be(200));
 
                             describe("then update to 3rd half", {
-                                beforeEach(Tweener.main.update(d));
+                                beforeEach(tweener.update(d));
                                 it("should have correct value", o.x.should.be(450));
 
                                 describe("then update with overhead to 2nd half", {
-                                    beforeEach(Tweener.main.update(d + d));
+                                    beforeEach(tweener.update(d + d));
                                     it("should have correct value", o.x.should.be(600));
                                 });
                             });
@@ -52,7 +52,7 @@ class Main extends buddy.SingleSuite {
                                 beforeEach(t0.pause());
 
                                 describe("then update to 3rd half", {
-                                    beforeEach(Tweener.main.update(d));
+                                    beforeEach(tweener.update(d));
                                     it("should have correct value", o.x.should.be(200));
                                 });
 
@@ -60,7 +60,7 @@ class Main extends buddy.SingleSuite {
                                     beforeEach(t0.resume());
 
                                     describe("then update to 3rd half", {
-                                        beforeEach(Tweener.main.update(d));
+                                        beforeEach(tweener.update(d));
                                         it("should update object correctly", o.x.should.be(450));
                                     });
                                 });
@@ -70,7 +70,7 @@ class Main extends buddy.SingleSuite {
                                 beforeEach(t0.stop());
 
                                 describe("then update to 3rd half", {
-                                    beforeEach(Tweener.main.update(d));
+                                    beforeEach(tweener.update(d));
                                     it("should update object correctly", o.x.should.be(200));
                                 });
 
@@ -78,7 +78,7 @@ class Main extends buddy.SingleSuite {
                                     beforeEach(t0.start());
 
                                     describe("then update to 1st half", {
-                                        beforeEach(Tweener.main.update(d / 2));
+                                        beforeEach(tweener.update(d / 2));
                                         it("should have correct value", o.x.should.be(150));
                                     });
                                 });
@@ -89,7 +89,7 @@ class Main extends buddy.SingleSuite {
                                 it("should update object correctly", o.x.should.be(600));
 
                                 describe("then update to", {
-                                    beforeEach(Tweener.main.update(d));
+                                    beforeEach(tweener.update(d));
                                     it("should update object correctly", o.x.should.be(600));
                                 });
 
@@ -97,7 +97,7 @@ class Main extends buddy.SingleSuite {
                                     beforeEach(t0.start());
 
                                     describe("then update to 1st half", {
-                                        beforeEach(Tweener.main.update(d / 2));
+                                        beforeEach(tweener.update(d / 2));
                                         it("should have correct value", o.x.should.be(350));
                                     });
                                 });
@@ -110,19 +110,19 @@ class Main extends buddy.SingleSuite {
                     beforeEach(t0.repeat().start());
 
                     describe("then update to 1st half", {
-                        beforeEach(Tweener.main.update(d / 2));
+                        beforeEach(tweener.update(d / 2));
                         it("should have correct value", o.x.should.be(50));
 
                         describe("then update to 2nd half", {
-                            beforeEach(Tweener.main.update(d));
+                            beforeEach(tweener.update(d));
                             it("should have correct value", o.x.should.be(200));
 
                             describe("then update to 3rd half", {
-                                beforeEach(Tweener.main.update(d));
+                                beforeEach(tweener.update(d));
                                 it("should have correct value", o.x.should.be(450));
 
                                 describe("then update with overhead to 2nd half", {
-                                    beforeEach(Tweener.main.update(d + d));
+                                    beforeEach(tweener.update(d + d));
                                     it("should have correct value", o.x.should.be(200));
                                 });
                             });
@@ -134,19 +134,19 @@ class Main extends buddy.SingleSuite {
                     beforeEach({t0.autodispose = true; t0.start();});
 
                     describe("then update to 1st half", {
-                        beforeEach(Tweener.main.update(d / 2));
+                        beforeEach(tweener.update(d / 2));
                         it("should have correct value", o.x.should.be(50));
 
                         describe("then update to 2nd half", {
-                            beforeEach(Tweener.main.update(d));
+                            beforeEach(tweener.update(d));
                             it("should have correct value", o.x.should.be(200));
 
                             describe("then update to 3rd half", {
-                                beforeEach(Tweener.main.update(d));
+                                beforeEach(tweener.update(d));
                                 it("should have correct value", o.x.should.be(450));
 
                                 describe("then update with overhead to 2nd half", {
-                                    beforeEach(Tweener.main.update(d + d));
+                                    beforeEach(tweener.update(d + d));
                                     it("should have correct value", o.x.should.be(600));
                                     it("should be disposed", @:privateAccess {
                                         t0.head.should.be(null);
@@ -182,19 +182,19 @@ class Main extends buddy.SingleSuite {
                     beforeEach(t0.start());
 
                     describe("then update to 1st half", {
-                        beforeEach(Tweener.main.update(d / 2));
+                        beforeEach(tweener.update(d / 2));
                         it("should have correct value", o.x.should.be(50));
 
                         describe("then update to 2nd half", {
-                            beforeEach(Tweener.main.update(d));
+                            beforeEach(tweener.update(d));
                             it("should have correct value", o.x.should.be(150));
 
                             describe("then update with overhead to 1st half", {
-                                beforeEach(Tweener.main.update(d));
+                                beforeEach(tweener.update(d));
                                 it("should have correct value", o.x.should.be(250));
 
                                 describe("then update with overhead to 2nd half", {
-                                    beforeEach(Tweener.main.update(d));
+                                    beforeEach(tweener.update(d));
                                     it("should have correct value", o.x.should.be(450));
                                 });
                             });
@@ -222,19 +222,19 @@ class Main extends buddy.SingleSuite {
                     beforeEach(t0.start());
 
                     describe("then update to 1st 1/4", {
-                        beforeEach(Tweener.main.update(d / 4));
+                        beforeEach(tweener.update(d / 4));
                         it("should have correct value", o.x.should.be(25));
 
                         describe("then update to 2nd 1/4", {
-                            beforeEach(Tweener.main.update(d));
+                            beforeEach(tweener.update(d));
                             it("should have correct value", o.x.should.be(75));
 
                             describe("then update with overhead to 1st 1/4", {
-                                beforeEach(Tweener.main.update(d));
+                                beforeEach(tweener.update(d));
                                 it("should have correct value", o.x.should.be(25));
 
                                 describe("then update with overhead to 2nd 1/4", {
-                                    beforeEach(Tweener.main.update(d));
+                                    beforeEach(tweener.update(d));
                                     it("should have correct value", o.x.should.be(75));
                                 });
                             });
@@ -262,19 +262,19 @@ class Main extends buddy.SingleSuite {
                     beforeEach(t0.start());
 
                     describe("then update to 1st 1/4", {
-                        beforeEach(Tweener.main.update(d / 4));
+                        beforeEach(tweener.update(d / 4));
                         it("should have correct value", o.x.should.be(25));
 
                         describe("then update to 2nd 1/4", {
-                            beforeEach(Tweener.main.update(d));
+                            beforeEach(tweener.update(d));
                             it("should have correct value", o.x.should.be(175));
 
                             describe("then update with overhead to 1st 1/4", {
-                                beforeEach(Tweener.main.update(d));
+                                beforeEach(tweener.update(d));
                                 it("should have correct value", o.x.should.be(25));
 
                                 describe("then update with overhead to 2nd 1/4", {
-                                    beforeEach(Tweener.main.update(d));
+                                    beforeEach(tweener.update(d));
                                     it("should have correct value", o.x.should.be(175));
                                 });
                             });
@@ -284,7 +284,7 @@ class Main extends buddy.SingleSuite {
             });
 
             describe("when init tree tween", {
-                var tweener = Tweener.main;
+                var tweener = tweener;
                 var d = 10, o, t0, t1, t2, t3, t4;
                 beforeEach({
                     o = {
@@ -323,7 +323,7 @@ class Main extends buddy.SingleSuite {
                     beforeEach(t0.start());
 
                     describe("then update to 1st", {
-                        beforeEach(Tweener.main.update(d));
+                        beforeEach(tweener.update(d));
                         it("should have correct value", {
                             o.a.should.be(100);
                             o.b.should.be(50);
@@ -332,7 +332,7 @@ class Main extends buddy.SingleSuite {
                         });
 
                         describe("then update to 2nd", {
-                            beforeEach(Tweener.main.update(d));
+                            beforeEach(tweener.update(d));
                             it("should have correct value", {
                                 o.a.should.be(100);
                                 o.b.should.be(100);
@@ -341,7 +341,7 @@ class Main extends buddy.SingleSuite {
                             });
 
                             describe("then update to 3rd", {
-                                beforeEach(Tweener.main.update(d));
+                                beforeEach(tweener.update(d));
                                 it("should have correct value", {
                                     o.a.should.be(100);
                                     o.b.should.be(100);
@@ -350,7 +350,7 @@ class Main extends buddy.SingleSuite {
                                 });
 
                                 describe("then update to 4th half", {
-                                    beforeEach(Tweener.main.update(d / 2));
+                                    beforeEach(tweener.update(d / 2));
                                     it("should have correct value", {
                                         o.a.should.be(50);
                                         o.b.should.be(50);
@@ -359,7 +359,7 @@ class Main extends buddy.SingleSuite {
                                     });
 
                                     describe("then update with overhead to 1st half", {
-                                        beforeEach(Tweener.main.update(d));
+                                        beforeEach(tweener.update(d));
                                         it("should have correct value", {
                                             o.a.should.be(50);
                                             o.b.should.be(25);
@@ -375,7 +375,7 @@ class Main extends buddy.SingleSuite {
                             beforeEach(t0.pause());
 
                             describe("then update to 2nd", {
-                                beforeEach(Tweener.main.update(d));
+                                beforeEach(tweener.update(d));
                                 it("should have correct value", {
                                     o.a.should.be(100);
                                     o.b.should.be(50);
@@ -388,7 +388,7 @@ class Main extends buddy.SingleSuite {
                                 beforeEach(t0.resume());
 
                                 describe("then update to 2nd", {
-                                    beforeEach(Tweener.main.update(d));
+                                    beforeEach(tweener.update(d));
                                     it("should have correct value", {
                                         o.a.should.be(100);
                                         o.b.should.be(100);
@@ -403,7 +403,7 @@ class Main extends buddy.SingleSuite {
                             beforeEach(t0.stop());
 
                             describe("then update to 2nd", {
-                                beforeEach(Tweener.main.update(d));
+                                beforeEach(tweener.update(d));
                                 it("should have correct value", {
                                     o.a.should.be(100);
                                     o.b.should.be(50);
@@ -416,7 +416,7 @@ class Main extends buddy.SingleSuite {
                                 beforeEach(t0.start());
     
                                 describe("then update to 1st", {
-                                    beforeEach(Tweener.main.update(d));
+                                    beforeEach(tweener.update(d));
                                     it("should have correct value", {
                                         o.a.should.be(100);
                                         o.b.should.be(75);
@@ -495,28 +495,28 @@ class Main extends buddy.SingleSuite {
                     });
 
                     describe("then update to 4.9", {
-                        beforeEach(Tweener.main.update(4.9));
+                        beforeEach(tweener.update(4.9));
 
                         it("should be correct emitted", {
                             r.should.be("0S");
                         });
 
                         describe("then update to 5.0", {
-                            beforeEach(Tweener.main.update(0.1));
+                            beforeEach(tweener.update(0.1));
     
                             it("should be correct emitted", {
                                 r.should.be("0S5");
                             });
 
                             describe("then update to 9.0", {
-                                beforeEach(Tweener.main.update(5.0));
+                                beforeEach(tweener.update(5.0));
         
                                 it("should be correct emitted", {
                                     r.should.be("0S59C0S");
                                 });
 
                                 describe("then update to 10.0", {
-                                    beforeEach(Tweener.main.update(1.0));
+                                    beforeEach(tweener.update(1.0));
             
                                     it("should be correct emitted", {
                                         r.should.be("0S59C0S");

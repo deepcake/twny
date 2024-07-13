@@ -3,13 +3,6 @@ package twny;
 @:access(twny)
 class Tweener {
 
-    public static var main(get, null):Tweener;
-
-    static function get_main():Tweener {
-        return main ?? (main = new Tweener());
-    }
-
-
     final updating = new Array<Tween>();
 
 

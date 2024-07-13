@@ -63,7 +63,7 @@ class Tween {
      * @param autodispose if `true` the whole tween tree will be disposed after completion (if repeatable == `false`) or after direct calling `stop()`
      */
     public function new(?runner:Tweener, duration:Float, autodispose = true) {
-        this.runner = runner ?? Tweener.main;
+        this.runner = runner ?? TweenerTools.instance;
         this.duration = duration;
         this.autodispose = autodispose;
     }
