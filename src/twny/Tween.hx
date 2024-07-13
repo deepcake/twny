@@ -35,12 +35,12 @@ class Tween {
     @:isVar public var autodispose(get, set) = true;
 
     /**
-     * `true` if _this_ tween is completed (elapsed time == duration)
+     * `true` if this tween is completed (elapsed time >= duration)
      */
     public var completed(get, never):Bool;
 
     /**
-     * `true` if the whole tween tree is completed (elapsed time of each tween == duration)
+     * `true` if this tween and all following ones are completed (elapsed time of each >= duration)
      */
     public var fullyCompleted(get, never):Bool;
 
@@ -48,6 +48,7 @@ class Tween {
     var transitions = new Array<Transition>();
 
     var head:Tween;
+    var prev:Tween;
     var next:Array<Tween>;
 
     var runner:Tweener;
@@ -56,6 +57,8 @@ class Tween {
 
     var callbacks:Array<Cb>;
     var cbIndex = 0;
+
+    var backwardDuration:Float;
 
 
     /**
@@ -66,6 +69,7 @@ class Tween {
         this.runner = runner ?? TweenerTools.instance;
         this.duration = duration;
         this.autodispose = autodispose;
+        backwardDuration = duration;
     }
 
     /**
@@ -100,7 +104,6 @@ class Tween {
             if (elapsed >= duration) {
                 var offset = elapsed - duration;
 
-                elapsed = duration;
                 running = false;
 
                 if (next != null) {
@@ -112,7 +115,8 @@ class Tween {
                     if (head != null) {
                         if (head.fullyCompleted) {
                             if (repeatable) {
-                                head.setup(offset);
+                                var last = head.tail();
+                                head.setup(last.elapsed - last.duration);
                             }
                             else if (autodispose) {
                                 head.dispose();
@@ -188,6 +192,7 @@ class Tween {
         }
         transitions.resize(0);
         head = null;
+        prev = null;
         next = null;
         callbacks = null;
         cbIndex = 0;
@@ -247,14 +252,7 @@ class Tween {
      * @param tween `Tween`
      */
     public function then(tween:Tween) {
-        if (tween.head != null) {
-            if (tween.head.next != null) {
-                tween.head.next.remove(tween);
-            }
-        }
-
-        tween.setHead(head != null ? head : this);
-
+        tween.attachTo(this);
         if (next == null) {
             next = new Array<Tween>();
         }
@@ -323,13 +321,15 @@ class Tween {
     }
 
 
-    function setHead(tween:Tween) {
-        head = tween;
+    function attachTo(tween:Tween) {
+        prev = tween;
+        head = tween?.head ?? tween;
+        backwardDuration = prev.backwardDuration + duration;
         elapsed = 0.0;
         running = false;
         if (next != null) {
             for (n in next) {
-                n.setHead(head);
+                n.attachTo(this);
             }
         }
     }
@@ -371,6 +371,27 @@ class Tween {
         stocked = false;
     }
 
+    function tail():Tween {
+        var ret = this;
+        if (next != null) {
+            if (next.length == 1) {
+                ret = next[0].tail();
+            }
+            else {
+                var max = 0.;
+                for (n in next) {
+                    var t = n.tail();
+                    var d = t.backwardDuration;
+                    if (d > max) {
+                        max = d;
+                        ret = t;
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
 
     function get_paused() {
         return head != null ? head.paused : paused;
@@ -400,8 +421,13 @@ class Tween {
     function get_fullyCompleted() {
         var ret = completed;
         if (next != null) {
-            for (n in next) {
-                ret = ret && n.fullyCompleted;
+            if (next.length == 1) {
+                ret = ret && next[0].fullyCompleted;
+            }
+            else {
+                for (n in next) {
+                    ret = ret && n.fullyCompleted;
+                }
             }
         }
         return ret;
