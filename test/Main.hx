@@ -363,7 +363,6 @@ class Main extends buddy.SingleSuite {
                     o = {
                         x: .0,
                         y: .0,
-                        z: 100.,
                         n: {
                             a: .0,
                             n: {
@@ -376,26 +375,24 @@ class Main extends buddy.SingleSuite {
                     f = function() return o;
 
                     t = new Tween(10.0)
-                        .to(Linear.easeNone, o.x = -100)
-                        .to(Linear.easeNone, () -> o.y = 300)
-                        .to(Linear.easeNone, () -> { o.z = 500; })
+                        .to(Linear.easeNone, o.x = 2)
+                        .to(Linear.easeNone, () -> o.y = 2)
                         .to(Linear.easeNone, {
-                            o.n.a = 1.0;
-                            o.n.n.b = 1.0;
+                            o.n.a = 2;
+                            o.n.n.b = 2;
                         })
-                        .to(Linear.easeNone, f().w = 100)
+                        .to(Linear.easeNone, f().w = 2)
                         .start();
                 });
 
                 describe("then update to 1st half", {
                     beforeEach(t.update(5));
                     it("should update", {
-                        o.x.should.be(-50);
-                        o.y.should.be(150);
-                        o.z.should.be(300);
-                        o.n.a.should.be(0.5);
-                        o.n.n.b.should.be(0.5);
-                        o.w = 50;
+                        o.x.should.be(1);
+                        o.y.should.be(1);
+                        o.n.a.should.be(1);
+                        o.n.n.b.should.be(1);
+                        o.w.should.be(1);
                     });
                 });
             });
@@ -406,12 +403,59 @@ class Main extends buddy.SingleSuite {
                 beforeEach({
                     r = "";
                     t = new Tween(10)
-                        .repeat()
                         .on(0, () -> r += "0")
                         .on(10, () -> r += "F")
                         .onStart(() -> r += "S")
                         .onComplete(() -> r += "C")
                         .on(5, () -> r += "H");
+                });
+
+                describe("then make repeatable and start", {
+                    beforeEach(t.repeat().start());
+
+                    it("should be correctly emitted", {
+                        r.should.be("0S");
+                    });
+
+                    describe("then update to 4.9", {
+                        beforeEach(tweener.update(4.9));
+
+                        it("should be correctly emitted", {
+                            r.should.be("0S");
+                        });
+
+                        describe("then update to 5.0", {
+                            beforeEach(tweener.update(0.1));
+
+                            it("should be correctly emitted", {
+                                r.should.be("0SH");
+                            });
+
+                            describe("then update to 5.1", {
+                                beforeEach(tweener.update(0.1));
+
+                                it("should be correctly emitted", {
+                                    r.should.be("0SH");
+                                });
+
+                                describe("then update to 10.0", {
+                                    beforeEach(tweener.update(5.0));
+
+                                    it("should be correctly emitted", {
+                                        r.should.be("0SHFC0S");
+                                    });
+
+                                    describe("then update to 15.0", {
+                                        beforeEach(tweener.update(5.0));
+
+                                        it("should be correctly emitted", {
+                                            r.should.be("0SHFC0SH");
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
                 });
 
                 describe("then start", {
@@ -446,14 +490,14 @@ class Main extends buddy.SingleSuite {
                                     beforeEach(tweener.update(5.0));
 
                                     it("should be correctly emitted", {
-                                        r.should.be("0SHFC0S");
+                                        r.should.be("0SHFC");
                                     });
 
-                                    describe("then update to 11.0", {
-                                        beforeEach(tweener.update(1.0));
+                                    describe("then update to 15.0", {
+                                        beforeEach(tweener.update(5.0));
 
                                         it("should be correctly emitted", {
-                                            r.should.be("0SHFC0S");
+                                            r.should.be("0SHFC");
                                         });
                                     });
                                 });
