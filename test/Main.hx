@@ -1,3 +1,4 @@
+import twny.Tweener;
 import twny.Tween;
 import twny.easing.*;
 import twny.TweenerTools.instance as tweener;
@@ -191,6 +192,7 @@ class Main extends buddy.SingleSuite {
                 });
             });
 
+
             describe("when init 1st, 2nd, 3rd tween with relative transitions", {
                 var d = 10, o, t0, t1, t2;
                 beforeEach({
@@ -241,6 +243,7 @@ class Main extends buddy.SingleSuite {
                     });
                 });
             });
+
 
             describe("when init 1st, 2nd, 3rd tween with fixed transitions", {
                 var d = 10, o, t0, t1, t2;
@@ -294,7 +297,7 @@ class Main extends buddy.SingleSuite {
             });
 
 
-            describe("when init tree", {
+            describe("when init tween tree", {
                 var d = 10, o, t0, t1, t2, t3, t4;
                 beforeEach({
                     o = {
@@ -357,6 +360,123 @@ class Main extends buddy.SingleSuite {
             });
 
 
+            describe("when init tweeners", {
+                var d = 10, v1 = 100, v2 = 200, a:Array<{ x:Float }>, r:Array<Tweener>;
+                beforeEach({
+                    a = [
+                        for (i in 0...3) {
+                            { x: 100 * i }
+                        }
+                    ];
+                    r = [
+                        for (i in 0...3) {
+                            new Tweener();
+                        }
+                    ];
+                    for (i in 0...3) {
+                        r[i].tween(d)
+                            .to(Linear.easeNone, a[i].x += v1)
+                            .then(
+                                r[i].tween(d)
+                                    .to(Linear.easeNone, a[i].x += v2)
+                            )
+                            .start()
+                            .repeat();
+                    }
+                });
+
+                describe("then update", {
+                    beforeEach(for (i in 0...3) r[i].update(d));
+                    it("should update", a[0].x.should.be(0 + v1));
+                    it("should update", a[1].x.should.be(100 + v1));
+                    it("should update", a[2].x.should.be(200 + v1));
+
+                    describe("then update", {
+                        beforeEach(for (i in 0...3) r[i].update(d));
+                        it("should update", a[0].x.should.be(0 + v1 + v2));
+                        it("should update", a[1].x.should.be(100 + v1 + v2));
+                        it("should update", a[2].x.should.be(200 + v1 + v2));
+
+                        describe("then update", {
+                            beforeEach(for (i in 0...3) r[i].update(d));
+                            it("should update", a[0].x.should.be(0 + v1 + v2 + v1));
+                            it("should update", a[1].x.should.be(100 + v1 + v2 + v1));
+                            it("should update", a[2].x.should.be(200 + v1 + v2 + v1));
+                        });
+                    });
+
+                    describe("then pause 1st tweener", {
+                        beforeEach(r[0].pause());
+
+                        describe("then update", {
+                            beforeEach(for (i in 0...3) r[i].update(d));
+                            it("should not update", a[0].x.should.be(0 + v1));
+                            it("should update", a[1].x.should.be(100 + v1 + v2));
+                            it("should update", a[2].x.should.be(200 + v1 + v2));
+
+                            describe("then resume 1st tweener", {
+                                beforeEach(r[0].resume());
+    
+                                describe("then update", {
+                                    beforeEach(for (i in 0...3) r[i].update(d));
+                                    it("should update", a[0].x.should.be(0 + v1 + v2));
+                                    it("should update", a[1].x.should.be(100 + v1 + v2 + v1));
+                                    it("should update", a[2].x.should.be(200 + v1 + v2 + v1));
+                                });
+                            });
+                        });
+                    });
+
+                    describe("then pause all tweeners", {
+                        beforeEach(for (i in 0...3) r[i].pause());
+
+                        describe("then update", {
+                            beforeEach(for (i in 0...3) r[i].update(d));
+                            it("should not update", a[0].x.should.be(0 + v1));
+                            it("should not update", a[1].x.should.be(100 + v1));
+                            it("should not update", a[2].x.should.be(200 + v1));
+
+                            describe("then resume all tweeners", {
+                                beforeEach(for (i in 0...3) r[i].resume());
+    
+                                describe("then update", {
+                                    beforeEach(for (i in 0...3) r[i].update(d));
+                                    it("should update", a[0].x.should.be(0 + v1 + v2));
+                                    it("should update", a[1].x.should.be(100 + v1 + v2));
+                                    it("should update", a[2].x.should.be(200 + v1 + v2));
+                                });
+                            });
+                        });
+                    });
+
+                    describe("then stop all tweeners", {
+                        beforeEach(for (i in 0...3) r[i].stop());
+
+                        describe("then update", {
+                            beforeEach(for (i in 0...3) r[i].update(d));
+                            it("should not update", a[0].x.should.be(0 + v1));
+                            it("should not update", a[1].x.should.be(100 + v1));
+                            it("should not update", a[2].x.should.be(200 + v1));
+                        });
+                    });
+
+                    describe("then stop and complete all tweeners", {
+                        beforeEach(for (i in 0...3) r[i].stop(true));
+                        it("should complete", a[0].x.should.be(0 + v1 + v2));
+                        it("should complete", a[1].x.should.be(100 + v1 + v2));
+                        it("should complete", a[2].x.should.be(200 + v1 + v2));
+
+                        describe("then update", {
+                            beforeEach(for (i in 0...3) r[i].update(d));
+                            it("should not update", a[0].x.should.be(0 + v1 + v2));
+                            it("should not update", a[1].x.should.be(100 + v1 + v2));
+                            it("should not update", a[2].x.should.be(200 + v1 + v2));
+                        });
+                    });
+                });
+            });
+
+
             describe("when init transitions in different ways", {
                 var o, f, t;
                 beforeEach({
@@ -397,7 +517,8 @@ class Main extends buddy.SingleSuite {
                 });
             });
 
-            describe("when add callbacks", {
+
+            describe("when use callbacks", {
                 var r, t;
 
                 beforeEach({

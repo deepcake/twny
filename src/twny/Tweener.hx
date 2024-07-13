@@ -14,6 +14,24 @@ class Tweener {
         return new Tween(this, duration, autodispose);
     }
 
+    public function stop(complete = false) {
+        for (tween in updating) {
+            tween.control().stop(complete);
+        }
+    }
+
+    public function pause() {
+        for (tween in updating) {
+            tween.control().pause();
+        }
+    }
+
+    public function resume() {
+        for (tween in updating) {
+            tween.control().resume();
+        }
+    }
+
     public function update(dt:Float) {
         var l = updating.length;
         var i = 0;
@@ -33,18 +51,13 @@ class Tweener {
 
     public function reset() {
         for (tween in updating) {
-            if (tween.head != null) {
-                tween.head.dispose();
-            }
-            else {
-                tween.dispose();
-            }
+            tween.control().dispose();
         }
         updating.resize(0);
     }
 
 
-    inline function queue(tween:Tween) {
+    inline function run(tween:Tween) {
         updating.push(tween);
     }
 

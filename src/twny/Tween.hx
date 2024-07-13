@@ -362,7 +362,7 @@ class Tween {
 
     function stock() {
         if (!stocked) {
-            runner.queue(this);
+            runner.run(this);
             stocked = true;
         }
     }
@@ -390,6 +390,10 @@ class Tween {
             }
         }
         return ret;
+    }
+
+    inline function control() {
+        return head != null ? head : this;
     }
 
 
