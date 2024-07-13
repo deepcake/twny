@@ -9,38 +9,37 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
 
 ### How It Looks Like
 ```haxe
-import twny.Twny.tween;
+import twny.TweenerTools.*;
 
 class Example {
   static function main() {
-    var s = { x: 0., y: 0., z: 0., scale: 1. };
+    var s = { x: 0., y: 0., scale: 1. };
 
     tween(0)
       .then(
-        tween(1.0)
+        tween(1.)
           .to(Linear.easeNone, {
             s.x = 200;
-            s.z = 200;
           })
           .from(Quad.easeOut, {
-            s.scale *= 2;
+            s.scale = 2;
           })
           .onComplete(() -> {
             trace("Done!");
           })
       )
       .then(
-        tween(0.5)
+        tween(.5)
           .to(Circ.easeOut, s.y -= 100)
           .then(
-            tween(0.5)
+            tween(.5)
               .to(Circ.easeIn, s.y += 100)
           )
       )
       .start()
       .repeat();
 
-    Twny.update(.5);
+    TweenerTools.update(.5);
   }
 }
 ```
@@ -51,36 +50,35 @@ class Example {
   tween(1.0)
     .to(Quad.easeIn, {
       spr.pos.x = 100;
-      spr.pos.y = 150;
-      scene.getChildAt(1).pos.x = -50; // any getter/setter expressions are acceptable
+      scene.getChildAt(1).pos.x = 100;
     })
  ```
 - Tween chaining and branching!
  ```haxe
-  tween(0) // just combine a few other tweens (can also be used for delay)
+  tween(0) // 1st tween just to combine a few tweens below (can be also used for delay)
     .then(
-      tween(1.0).to(...) // will be started after 1-st tween
+      tween(1.0).to(...) // will be started after 1st tween
     )
     .then(
-      tween(3.0).to(...) // will be started after 1-st tween in parallel with tween above
+      tween(3.0).to(...) // will be started after 1st tween in parallel with tween above
         .then(...)
         .then(...)
     )
  ```
- - Repeating the whole tween tree without using _oncomplete_ callback!
+ - Repeating the whole tween tree without using oncomplete callback!
  ```haxe
-  tween(.5).to(Quad.easeIn, spr.x = 100)
+  tween(1).to(Quad.easeIn, spr.x = 100)
     .then(
-      tween(.5).to(Quad.easeIn, spr.x = 200)
+      tween(1).to(Quad.easeIn, spr.x = 200)
     )
     .repeat()
     .start();
-  Twny.update(.5); // spr.x == 100
-  Twny.update(.5); // spr.x == 200
-  Twny.update(.5); // spr.x == 100
-  Twny.update(.5); // spr.x == 200
+  TweenerTools.update(1); // spr.x == 100
+  TweenerTools.update(1); // spr.x == 200
+  TweenerTools.update(1); // spr.x == 100
+  TweenerTools.update(1); // spr.x == 200
  ```
-  - Parallel transitions with different easings! _(not a big deal, but this is the one that made me start working on this lib)_
+  - Parallel transitions with different easings! _(no big deal, but that's what made me start working on this lib)_
  ```haxe
   tween(1.0)
     .to(Quad.easeIn, spr.x = 100)
@@ -89,11 +87,10 @@ class Example {
  - Time callbacks and playback control!
  ```haxe
   var t = tween(1.0)
-    //.onStart()
+    .onStart(() -> trace('Start!'))
     .on(.5, () -> trace('Half!'))
-    .onComplete(() -> trace('The end!'));
-
-  t.start();
+    .onComplete(() -> trace('The end!'))
+    .start();
   t.pause();
   t.resume();
 ```
