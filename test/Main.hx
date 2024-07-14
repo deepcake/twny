@@ -11,8 +11,9 @@ class Main extends buddy.SingleSuite {
             beforeEach(tweener.reset());
 
             describe("when init 1st, 2nd, 3rd tween", {
-                var d = 10, o, t0, t1, t2;
+                var d = 10, o, s, t0, t1, t2;
                 beforeEach({
+                    s = "";
                     o = {
                         x: 0.,
                         y: 0.
@@ -28,6 +29,7 @@ class Main extends buddy.SingleSuite {
                                     t2 = new Tween(d)
                                         .to(Linear.easeNone, o.x = 600)
                                         .from(Linear.easeNone, o.y = 600)
+                                        .onComplete(() -> s += "C")
                                 )
                         );
                 });
@@ -129,6 +131,13 @@ class Main extends buddy.SingleSuite {
                             });
                         });
                     });
+
+                    describe("then update with x10 overhead", {
+                        beforeEach(tweener.update(d * 10));
+                        it("should update", o.x.should.be(600));
+                        it("should update", o.y.should.be(0));
+                        it("should update", s.should.be("C"));
+                    });
                 });
 
                 describe("then make repeatable and start", {
@@ -157,6 +166,13 @@ class Main extends buddy.SingleSuite {
                             });
                         });
                     });
+
+                    describe("then update with x10 overhead", {
+                        beforeEach(tweener.update(d * 10));
+                        it("should update", o.x.should.be(100));
+                        it("should update", o.y.should.be(300));
+                        it("should update", s.should.be("CCC"));
+                    });
                 });
 
                 describe("then make once and start", {
@@ -184,9 +200,28 @@ class Main extends buddy.SingleSuite {
                                         t0.running.should.be(false);
                                         t1.running.should.be(false);
                                         t2.running.should.be(false);
+                                        tweener.update(0); // cleaned on next update
+                                        tweener.updating.length.should.be(0);
                                     });
                                 });
                             });
+                        });
+                    });
+
+                    describe("then update with x10 overhead", {
+                        beforeEach(tweener.update(d * 10));
+                        it("should update", o.x.should.be(600));
+                        it("should update", o.y.should.be(0));
+                        it("should update", s.should.be("C"));
+                        it("should be disposed", @:privateAccess {
+                            t0.head.should.be(null);
+                            t1.head.should.be(null);
+                            t2.head.should.be(null);
+                            t0.running.should.be(false);
+                            t1.running.should.be(false);
+                            t2.running.should.be(false);
+                            tweener.update(0); // cleaned on next update
+                            tweener.updating.length.should.be(0);
                         });
                     });
                 });
