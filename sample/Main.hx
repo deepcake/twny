@@ -3,7 +3,7 @@ package;
 import js.Browser;
 import js.html.CanvasElement;
 import twny.easing.*;
-import twny.TweenerTools.*;
+import twny.TwnyTools.*;
 
 
 typedef Sprite = {
@@ -113,7 +113,7 @@ class Main {
         }
 
         function update() {
-            twny.TweenerTools.update(60 / 1000);
+            twny.TwnyTools.update(60 / 1000);
             context.setTransform(1, 0, 0, 1, 0, 0);
             context.clearRect(0, 0, w, h);
             for (s in sprites) {

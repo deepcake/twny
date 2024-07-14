@@ -39,7 +39,7 @@ class Tweener {
             var tween = updating[i];
             tween.update(dt);
             if (!tween.running) {
-                tween.unstock();
+                tween.iterating = false;
                 updating.splice(i, 1);
                 l--;
             }

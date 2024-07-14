@@ -1,7 +1,7 @@
 import twny.Tweener;
 import twny.Tween;
 import twny.easing.*;
-import twny.TweenerTools.instance as tweener;
+import twny.TwnyTools.instance as tweener;
 
 using buddy.Should;
 
@@ -568,7 +568,7 @@ class Main extends buddy.SingleSuite {
             });
 
 
-            describe("when use callbacks", {
+            describe("when init tween with callbacks", {
                 var r, t;
 
                 beforeEach({

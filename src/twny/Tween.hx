@@ -18,9 +18,6 @@ class Tween {
 
     public var duration(default, null):Float;
 
-    public var elapsed(default, null) = 0.0;
-    public var running(default, null) = false;
-
     /**
      * Just pause
      */
@@ -47,13 +44,16 @@ class Tween {
 
     var transitions = new Array<Transition>();
 
+    var elapsed(default, null) = 0.0;
+    var running(default, null) = false;
+
     var head:Tween;
     var prev:Tween;
     var next:Array<Tween>;
 
-    var runner:Tweener;
+    var tweener:Tweener;
 
-    var stocked = false;
+    var iterating = false;
 
     var callbacks:Array<Cb>;
     var cbIndex = 0;
@@ -65,8 +65,8 @@ class Tween {
      * @param duration duration of current tween
      * @param autodispose if `true` the whole tween tree will be disposed after completion (if repeatable == `false`) or after direct calling `stop()`
      */
-    public function new(?runner:Tweener, duration:Float, autodispose = true) {
-        this.runner = runner ?? TweenerTools.instance;
+    public function new(?tweener:Tweener, duration:Float, autodispose = true) {
+        this.tweener = tweener ?? TwnyTools.instance;
         this.duration = duration;
         this.autodispose = autodispose;
         backwardDuration = duration;
@@ -261,6 +261,30 @@ class Tween {
     }
 
     /**
+     * Returns tween that will be completed last
+     */
+    public function tail():Tween {
+        var ret = this;
+        if (next != null) {
+            if (next.length == 1) {
+                ret = next[0].tail();
+            }
+            else {
+                var max = 0.;
+                for (n in next) {
+                    var t = n.tail();
+                    var d = t.backwardDuration;
+                    if (d > max) {
+                        max = d;
+                        ret = t;
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
+    /**
      * Creates transitions of passed _properties_ with passed _easing_ from the current value to the assingned value.  
      * There are available some relativity control of the created transitions depending on the assignment type. 
      * Relative transitions are calling init on each tween start, whereas fixed transitions are calling init only once on creation.  
@@ -349,7 +373,10 @@ class Tween {
     }
 
     function setup(offset = 0.) {
-        stock();
+        if (!iterating) {
+            tweener.run(this);
+            iterating = true;
+        }
         elapsed = 0.0;
         running = true;
         cbIndex = 0;
@@ -360,37 +387,6 @@ class Tween {
         update(offset);
     }
 
-    function stock() {
-        if (!stocked) {
-            runner.run(this);
-            stocked = true;
-        }
-    }
-
-    function unstock() {
-        stocked = false;
-    }
-
-    function tail():Tween {
-        var ret = this;
-        if (next != null) {
-            if (next.length == 1) {
-                ret = next[0].tail();
-            }
-            else {
-                var max = 0.;
-                for (n in next) {
-                    var t = n.tail();
-                    var d = t.backwardDuration;
-                    if (d > max) {
-                        max = d;
-                        ret = t;
-                    }
-                }
-            }
-        }
-        return ret;
-    }
 
     inline function control() {
         return head != null ? head : this;

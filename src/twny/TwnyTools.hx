@@ -1,6 +1,6 @@
 package twny;
 
-class TweenerTools {
+class TwnyTools {
 
     public static var instance(get, null):Tweener;
 

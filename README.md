@@ -7,24 +7,27 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
 
 ### Wip
 
+### [Live Example](https://deepcake.github.io/twny/bin/)
+
 ### How It Looks Like
 ```haxe
-import twny.TweenerTools.tween;
+import twny.TwnyTools.tween;
 
 class Example {
+  var s = { x: 0., y: 0., scale: { x: 0., y: 0.} };
   static function main() {
     tween(0)
       .then(
-        tween(1.)
-          .to(Linear.easeNone, {
-            s.x = 200;
-          })
-          .to(Quad.easeOut, {
-            s.scale.x = 2.;
+        tween(1)
+          .to(Circ.easeInOut, {
+            s.scale.x = 2;
             s.scale.y = .5;
           })
+          .to(Linear.easeNone, {
+            s.x += 200;
+          })
           .onComplete(() -> {
-            trace("Done!");
+            trace('x: ${s.x}');
           })
       )
       .then(
@@ -38,20 +41,19 @@ class Example {
       .start()
       .repeat();
 
-    twny.TweenerTools.update(.5);
+    twny.TwnyTools.update(1); // x: 200
+    twny.TwnyTools.update(1); // x: 400
   }
 }
 ```
 
-### [Live Example](https://deepcake.github.io/twny/bin/)
-
 ### Features Achieved
- - Access to nested fields at any depth! _(also see [also](#also) about autocompletion)_
+ - Nice property syntax with access to nested fields at any depth! _(also see [also](#also) about autocompletion)_
  ```haxe
   tween(1.0)
     .to(Quad.easeIn, {
       spr.pos.x = 100;
-      scene.getChildAt(1).pos.x = 100;
+      scene.getChildAt(1).pos.y = 100;
     })
  ```
 - Tween chaining and branching!
@@ -74,12 +76,12 @@ class Example {
     )
     .repeat()
     .start();
-  TweenerTools.update(1); // spr.x == 100
-  TweenerTools.update(1); // spr.x == 200
-  TweenerTools.update(1); // spr.x == 100
-  TweenerTools.update(1); // spr.x == 200
+  TwnyTools.update(1); // spr.x == 100
+  TwnyTools.update(1); // spr.x == 200
+  TwnyTools.update(1); // spr.x == 100
+  TwnyTools.update(1); // spr.x == 200
  ```
-  - Parallel transitions with different easings! _(no big deal, but that's what made me start working on this lib)_
+  - Parallel transitions with different easings! _(not a big deal, but that's what made me start working on own tween lib)_
  ```haxe
   tween(1.0)
     .to(Quad.easeIn, spr.x = 100)
@@ -98,6 +100,6 @@ class Example {
  - Macro-based, no reflection _(but a several macro-generated anonymous functions instead)_
 
 ### Also
-`-D twny-autocompletion-hack` - workaround to achieve autocompletion for macro func args. See issues:
-https://github.com/HaxeFoundation/haxe/issues/7699
-https://github.com/HaxeFoundation/haxe/issues/9421
+`-D twny-autocompletion-hack` - workaround to achieve autocompletion in properties. See issues:  
+https://github.com/HaxeFoundation/haxe/issues/7699  
+https://github.com/HaxeFoundation/haxe/issues/9421  
