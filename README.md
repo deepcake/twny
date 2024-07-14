@@ -9,20 +9,19 @@ Inspired mostly by [Slide](https://github.com/AndreiRudenko/slide) and [Ceramic 
 
 ### How It Looks Like
 ```haxe
-import twny.TweenerTools.*;
+import twny.TweenerTools.tween;
 
 class Example {
   static function main() {
-    var s = { x: 0., y: 0., scale: 1. };
-
     tween(0)
       .then(
         tween(1.)
           .to(Linear.easeNone, {
             s.x = 200;
           })
-          .from(Quad.easeOut, {
-            s.scale = 2;
+          .to(Quad.easeOut, {
+            s.scale.x = 2.;
+            s.scale.y = .5;
           })
           .onComplete(() -> {
             trace("Done!");
@@ -39,7 +38,7 @@ class Example {
       .start()
       .repeat();
 
-    TweenerTools.update(.5);
+    twny.TweenerTools.update(.5);
   }
 }
 ```
