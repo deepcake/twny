@@ -139,8 +139,8 @@ class Tween {
     /**
      * Starts whole tween tree
      */
-    public function start() {
-        setup();
+    public function start(offset = 0.) {
+        setup(offset);
         return this;
     }
 

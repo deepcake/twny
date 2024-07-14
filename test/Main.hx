@@ -190,6 +190,21 @@ class Main extends buddy.SingleSuite {
                         });
                     });
                 });
+
+                describe("then make repeatable and start with offset", {
+                    beforeEach(t0.repeat().start(d * 2));
+                    it("should update", o.x.should.be(300));
+
+                    describe("then update", {
+                        beforeEach(tweener.update(d));
+                        it("should update", o.x.should.be(600));
+
+                        describe("then update", {
+                            beforeEach(tweener.update(d));
+                            it("should update", o.x.should.be(100));
+                        });
+                    });
+                });
             });
 
 
