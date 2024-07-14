@@ -44,6 +44,8 @@ class Example {
 }
 ```
 
+### [Live Example](https://deepcake.github.io/twny/bin/)
+
 ### Features Achieved
  - Access to nested fields at any depth! _(also see [also](#also) about autocompletion)_
  ```haxe

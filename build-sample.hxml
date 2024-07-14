@@ -1,0 +1,13 @@
+-p src
+-p sample
+-m Main
+
+--dce full
+
+--js bin/main.js
+
+
+-D js-es=6
+-D analyzer-optimize
+
+-D twny-autocompletion-hack
