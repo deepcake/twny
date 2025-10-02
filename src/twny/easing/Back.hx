@@ -3,25 +3,26 @@ package twny.easing;
 @:final
 class Back {
 
-    inline static var OVERSHOOT:Float = 1.70158;
+    static final c1 = 1.70158;
+    static final c2 = c1 * 1.525;
+    static final c3 = c1 + 1;
 
 
-    public static function easeIn(ratio:Float):Float {
-        if (ratio == 1) return 1;
-        return ratio * ratio * ((OVERSHOOT + 1.0) * ratio - OVERSHOOT);
+    public static function easeIn(k:Float):Float {
+        return c3 * k * k * k - c1 * k * k;
     }
 
-    public static function easeInOut(ratio:Float):Float {
-        var over = OVERSHOOT;
-        if ((ratio *= 2) < 1) {
-            return 0.5 * (ratio * ratio * (((over *= (1.525)) + 1) * ratio - over));
+    public static function easeInOut(k:Float):Float {
+        if (k < 0.5) {
+            return (Math.pow(2 * k, 2) * ((c2 + 1) * 2 * k - c2)) / 2;
         }
-        return 0.5 * ((ratio -= 2) * ratio * (((over *= (1.525)) + 1) * ratio + over) + 2);
+        else {
+            return (Math.pow(2 * k - 2, 2) * ((c2 + 1) * (k * 2 - 2) + c2) + 2) / 2;
+        }
     }
 
-    public static function easeOut(ratio:Float):Float {
-        if (ratio == 0) return 0;
-        return ((ratio = ratio - 1) * ratio * ((OVERSHOOT + 1) * ratio + OVERSHOOT) + 1);
+    public static function easeOut(k:Float):Float {
+        return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2);
     }
 
 }
