@@ -53,7 +53,6 @@ class Tween {
     var running(default, null) = false;
 
     var head:Tween;
-    var prev:Tween;
     var next:Array<Tween>;
 
     var tweener:Tweener;
@@ -197,7 +196,6 @@ class Tween {
         }
         transitions.resize(0);
         head = null;
-        prev = null;
         next = null;
         callbacks = null;
         cbIndex = 0;
@@ -351,9 +349,8 @@ class Tween {
 
 
     function attachTo(tween:Tween) {
-        prev = tween;
         head = tween?.head ?? tween;
-        backwardDuration = prev.backwardDuration + duration;
+        backwardDuration = tween.backwardDuration + duration;
         elapsed = 0.0;
         running = false;
         if (next != null) {
