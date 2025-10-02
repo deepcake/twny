@@ -3,40 +3,32 @@ package twny.easing;
 @:final
 class Elastic {
 
-    inline static var AMPLITUDE:Float = 0.1;
-    inline static var PERIOD:Float = 0.4;
+    static final c4 = (2 * Math.PI) / 3;
+    static final c5 = (2 * Math.PI) / 4.5;
 
 
     public static function easeIn(k:Float):Float {
         if (k == 0) return 0;
         if (k == 1) return 1;
-        var s = PERIOD / (2 * Math.PI) * Math.asin (1 / AMPLITUDE);
-        return -(AMPLITUDE * Math.pow(2, 10 * (k -= 1)) * Math.sin( (k - s) * (2 * Math.PI) / PERIOD ));
+        return -Math.pow(2, 10 * k - 10) * Math.sin((k * 10 - 10.75) * c4);
     }
 
-    public static function easeInOut(t:Float):Float {
-        if (t == 0) {
-            return 0;
-        }
-        if ((t /= 1 / 2) == 2) {
-            return 1;
-        }
+    public static function easeInOut(k:Float):Float {
+        if (k == 0) return 0;
+        if (k == 1) return 1;
 
-        var p:Float = (0.3 * 1.5);
-        var a:Float = 1;
-        var s:Float = p / 4;
-
-        if (t < 1) {
-            return -0.5 * (Math.pow(2, 10 * (t -= 1)) * Math.sin((t - s) * (2 * Math.PI) / p));
+        if (k < .5) {
+            return -(Math.pow(2, 20 * k - 10) * Math.sin((20 * k - 11.125) * c5)) / 2;
         }
-        return Math.pow(2, -10 * (t -= 1)) * Math.sin((t - s) * (2 * Math.PI) / p) * 0.5 + 1;
+        else {
+            return (Math.pow(2, -20 * k + 10) * Math.sin((20 * k - 11.125) * c5)) / 2 + 1;
+        }
     }
 
-    public static function easeOut(t:Float):Float {
-        if (t == 0) return 0;
-        if (t == 1) return 1;
-        var s = PERIOD / (2 * Math.PI) * Math.asin (1 / AMPLITUDE);
-        return (AMPLITUDE * Math.pow(2, -10 * t) * Math.sin((t - s) * (2 * Math.PI) / PERIOD ) + 1);
+    public static function easeOut(k:Float):Float {
+        if (k == 0) return 0;
+        if (k == 1) return 1;
+        return Math.pow(2, -10 * k) * Math.sin((k * 10 - 0.75) * c4) + 1;
     }
 
 }
