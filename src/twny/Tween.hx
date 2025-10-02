@@ -41,6 +41,11 @@ class Tween {
      */
     public var fullyCompleted(get, never):Bool;
 
+    /**
+     * The whole duration from this tween until the latest following one's end
+     */
+    public var fullyDuration(get, never):Float;
+
 
     var transitions = new Array<Transition>();
 
@@ -431,6 +436,10 @@ class Tween {
             }
         }
         return ret;
+    }
+
+    function get_fullyDuration() {
+        return tail().backwardDuration;
     }
 
 }

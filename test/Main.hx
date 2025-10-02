@@ -374,6 +374,9 @@ class Main extends buddy.SingleSuite {
                         );
                 });
 
+                it("should have correct fully duration", t0.fullyDuration.should.be(35));
+                it("should have correct tail", t0.tail().should.be(t4));
+
                 describe("then make repeatable and start", {
                     beforeEach(t0.repeat().start());
 
