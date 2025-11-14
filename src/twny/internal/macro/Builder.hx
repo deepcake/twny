@@ -40,14 +40,14 @@ class Builder {
                     switch m.name {
                         case ":fixed", ":f": process(e, Fixed);
                         case ":relative", ":r": process(e, Relative);
-                        default: process(e);
+                        default: process(e, kind);
                     }
                 }
                 case EFunction(_, { expr: e }) | EReturn(e): {
-                    process(e);
+                    process(e, kind);
                 }
                 case EBlock(exprs): {
-                    exprs.iter(e -> process(e));
+                    exprs.iter(e -> process(e, kind));
                 }
                 case EBinop(op, e1, e2): {
                     var set = macro function(v) $e1 = v;
