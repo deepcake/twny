@@ -8,6 +8,14 @@ import haxe.macro.Context;
 using haxe.macro.ExprTools;
 using Lambda;
 
+
+enum abstract TransitionKind(Int) {
+    var Fixed;
+    var Relative;
+    var Auto;
+}
+
+
 class Builder {
 
     public static function transitions(self:ExprOf<Tween>, easing:ExprOf<Float->Float>, properties:ExprOf<Void->Void>, swapToFrom = false):ExprOf<Tween> {
@@ -26,13 +34,20 @@ class Builder {
 #end
         }
 
-        function process(expr:Expr) {
+        function process(expr:Expr, kind = Auto) {
             switch expr.expr {
-                case EFunction(_, { expr: e }) | EReturn(e) | EMeta(_, e): {
+                case EMeta(m, e): {
+                    switch m.name {
+                        case ":fixed", ":f": process(e, Fixed);
+                        case ":relative", ":r": process(e, Relative);
+                        default: process(e);
+                    }
+                }
+                case EFunction(_, { expr: e }) | EReturn(e): {
                     process(e);
                 }
                 case EBlock(exprs): {
-                    exprs.iter(process);
+                    exprs.iter(e -> process(e));
                 }
                 case EBinop(op, e1, e2): {
                     var set = macro function(v) $e1 = v;
@@ -40,9 +55,24 @@ class Builder {
                     var tr = switch op {
                         // a = x
                         case OpAssign: {
-                            swapToFrom ?
-                                macro new twny.internal.FixedFromTransition($easing, $e2, $getf, $set) :
-                                macro new twny.internal.FixedToTransition($easing, $getf, $e2, $set);
+                            switch kind {
+                                case Auto: {
+                                    swapToFrom ?
+                                        macro new twny.internal.FixedFromTransition($easing, $e2, $getf, $set) :
+                                        macro new twny.internal.FixedToTransition($easing, $getf, $e2, $set);
+                                }
+                                case Relative: {
+                                    var gett = macro function() return $e2;
+                                    swapToFrom ?
+                                        macro new twny.internal.RelativeTransition($easing, $gett, $getf, $set) :
+                                        macro new twny.internal.RelativeTransition($easing, $getf, $gett, $set);
+                                }
+                                case Fixed: {
+                                    swapToFrom ?
+                                        macro new twny.internal.FixedTransition($easing, $e2, $e1, $set) :
+                                        macro new twny.internal.FixedTransition($easing, $e1, $e2, $set);
+                                }
+                            }
                         }
                         // a += x, a -= x, a *= x
                         case OpAssignOp(aop): {

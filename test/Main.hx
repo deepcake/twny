@@ -294,6 +294,57 @@ class Main extends buddy.SingleSuite {
                 });
             });
 
+            describe("when init 1st, 2nd, 3rd tween with relative transitions by meta", {
+                var d = 10, o, t0, t1, t2;
+                beforeEach({
+                    o = {
+                        x: 0.,
+                        y: 0.
+                    };
+                    t0 = new Tween(d, false)
+                        .to(Linear.easeNone, @:r o.x = o.x + 100)
+                        .from(Linear.easeNone, @:r o.y = o.y + 100)
+                        .then(
+                            t1 = new Tween(d)
+                                .to(Linear.easeNone, @:r o.x = o.x + 300)
+                                .from(Linear.easeNone, @:r o.y = o.y + 300)
+                                .then(
+                                    t2 = new Tween(d)
+                                        .to(Linear.easeNone, @:r o.x = o.x + 600)
+                                        .from(Linear.easeNone, @:r o.y = o.y + 600)
+                                )
+                        );
+                });
+
+                describe("then make repeatable and start", {
+                    beforeEach(t0.repeat().start());
+
+                    describe("then update to 1st half", {
+                        beforeEach(tweener.update(d / 2));
+                        it("should update", o.x.should.be(100 / 2));
+                        it("should update", o.y.should.be(100 / 2));
+
+                        describe("then update to 2nd half", {
+                            beforeEach(tweener.update(d));
+                            it("should update", o.x.should.be(100 + 300 / 2));
+                            it("should update", o.y.should.be(300 / 2));
+
+                            describe("then update to 3rd half", {
+                                beforeEach(tweener.update(d));
+                                it("should update", o.x.should.be(400 + 600 / 2));
+                                it("should update", o.y.should.be(600 / 2));
+
+                                describe("then update with overhead to 2nd half", {
+                                    beforeEach(tweener.update(d + d));
+                                    it("should update", o.x.should.be(1000 + 100 + 300 / 2));
+                                    it("should update", o.y.should.be(300 / 2));
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
 
             describe("when init 1st, 2nd, 3rd tween with fixed transitions", {
                 var d = 10, o, t0, t1, t2;
@@ -313,6 +364,57 @@ class Main extends buddy.SingleSuite {
                                     t2 = new Tween(d)
                                         .to(Linear.easeNone, o.x == 600)
                                         .from(Linear.easeNone, o.y == 600)
+                                )
+                        );
+                });
+
+                describe("then make repeatable and start", {
+                    beforeEach(t0.repeat().start());
+
+                    describe("then update to 1st half", {
+                        beforeEach(tweener.update(d / 2));
+                        it("should update", o.x.should.be(100 / 2));
+                        it("should update", o.y.should.be(100 / 2));
+
+                        describe("then update to 2nd half", {
+                            beforeEach(tweener.update(d));
+                            it("should update", o.x.should.be(300 / 2));
+                            it("should update", o.y.should.be(300 / 2));
+
+                            describe("then update to 3rd half", {
+                                beforeEach(tweener.update(d));
+                                it("should update", o.x.should.be(600 / 2));
+                                it("should update", o.y.should.be(600 / 2));
+
+                                describe("then update with overhead to 2nd half", {
+                                    beforeEach(tweener.update(d + d));
+                                    it("should update", o.x.should.be(300 / 2));
+                                    it("should update", o.y.should.be(300 / 2));
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
+            describe("when init 1st, 2nd, 3rd tween with fixed transitions by meta", {
+                var d = 10, o, t0, t1, t2;
+                beforeEach({
+                    o = {
+                        x: 0.,
+                        y: 0.
+                    };
+                    t0 = new Tween(d, false)
+                        .to(Linear.easeNone, @:f o.x = 100)
+                        .from(Linear.easeNone, @:f o.y = 100)
+                        .then(
+                            t1 = new Tween(d)
+                                .to(Linear.easeNone, @:f o.x = 300)
+                                .from(Linear.easeNone, @:f o.y = 300)
+                                .then(
+                                    t2 = new Tween(d)
+                                        .to(Linear.easeNone, @:f o.x = 600)
+                                        .from(Linear.easeNone, @:f o.y = 600)
                                 )
                         );
                 });
